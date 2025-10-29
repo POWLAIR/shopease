@@ -1,0 +1,19 @@
+# Node
+node_modules
+npm-debug.log*
+.yarn/*
+.pnp.*
+*.log
+
+# Env
+.env
+
+# Docker volumes locaux
+postgres/data
+mongo/data
+
+# Mac/OS/IDE
+.DS_Store
+.idea
+.vscode
+
