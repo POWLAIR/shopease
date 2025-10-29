@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { buildApiUrl } from "@/lib/api"
 
 async function getReviewsStats() {
   try {
-    const res = await fetch("http://localhost:8000/api/avis/stats", { cache: "no-store" })
+    const res = await fetch(buildApiUrl("/api/avis/stats"), { cache: "no-store" })
     const data = res.ok ? await res.json() : null
 
     if (!data) {

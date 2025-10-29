@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
+export const dynamic = 'force-dynamic'
+
 export default async function ProductDetailPage({ params }: { params: { id: string } }) {
   const { id } = await params
 

@@ -3,6 +3,8 @@ import { ClientsList } from "@/components/clients/clients-list"
 import { ClientsHeader } from "@/components/clients/clients-header"
 import { ClientsStats } from "@/components/clients/clients-stats"
 
+export const dynamic = 'force-dynamic'
+
 export default function ClientsPage() {
   return (
     <div className="flex flex-col gap-6">

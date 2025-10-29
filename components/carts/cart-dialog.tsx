@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { buildApiUrl } from "@/lib/api"
 
 export function CartDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const [loading, setLoading] = useState(false)
@@ -29,7 +30,7 @@ export function CartDialog({ open, onOpenChange }: { open: boolean; onOpenChange
   const { toast } = useToast()
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/clients")
+    fetch(buildApiUrl("/api/clients"))
       .then((res) => res.json())
       .then(setClients)
       .catch(() => {})
@@ -49,7 +50,7 @@ export function CartDialog({ open, onOpenChange }: { open: boolean; onOpenChange
     setLoading(true)
 
     try {
-      const res = await fetch("http://localhost:8000/api/paniers", {
+      const res = await fetch(buildApiUrl("/api/paniers"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

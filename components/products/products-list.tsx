@@ -2,10 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { ProductActions } from "./product-actions"
+import { buildApiUrl } from "@/lib/api"
 
 async function getProducts() {
   try {
-    const res = await fetch("http://localhost:8000/api/produits", {
+    const res = await fetch(buildApiUrl("/api/produits"), {
       cache: "no-store",
     })
     if (!res.ok) return []

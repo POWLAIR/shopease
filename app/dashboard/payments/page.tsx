@@ -4,6 +4,8 @@ import { PaymentsHeader } from "@/components/payments/payments-header"
 import { PaymentsStats } from "@/components/payments/payments-stats"
 import { PaymentsChart } from "@/components/payments/payments-chart"
 
+export const dynamic = 'force-dynamic'
+
 export default function PaymentsPage() {
   return (
     <div className="flex flex-col gap-6">

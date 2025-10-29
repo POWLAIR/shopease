@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
+import { buildApiUrl } from "@/lib/api"
 
 export function PromotionDialog({
   open,
@@ -57,7 +58,7 @@ export function PromotionDialog({
     setLoading(true)
 
     try {
-      const res = await fetch("http://localhost:8000/api/promotions", {
+      const res = await fetch(buildApiUrl("/api/promotions"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

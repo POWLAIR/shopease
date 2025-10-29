@@ -3,6 +3,8 @@ import { PromotionsList } from "@/components/promotions/promotions-list"
 import { PromotionsHeader } from "@/components/promotions/promotions-header"
 import { PromotionsStats } from "@/components/promotions/promotions-stats"
 
+export const dynamic = 'force-dynamic'
+
 export default function PromotionsPage() {
   return (
     <div className="flex flex-col gap-6">

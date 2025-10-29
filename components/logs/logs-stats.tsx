@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Activity, Users, TrendingUp } from "lucide-react"
+import { buildApiUrl } from "@/lib/api"
 
 async function getLogsStats() {
   try {
-    const res = await fetch("http://localhost:8000/api/logs/stats", { cache: "no-store" })
+    const res = await fetch(buildApiUrl("/api/logs/stats"), { cache: "no-store" })
     const data = res.ok ? await res.json() : null
 
     if (!data) {
@@ -60,13 +61,13 @@ export async function LogsStats() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats.actions_frequentes.length}</div>
-          <p className="text-xs text-muted-foreground">Actions fréquentes</p>
+          <p className="text-xs text-muted-foreground">Actions</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Heure de pointe</CardTitle>
+          <CardTitle className="text-sm font-medium">Actions fréquentes</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>

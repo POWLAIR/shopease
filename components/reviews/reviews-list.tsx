@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Search, Star } from "lucide-react"
+import { buildApiUrl } from "@/lib/api"
 
 export function ReviewsList() {
   const [reviews, setReviews] = useState<any[]>([])
@@ -17,7 +18,7 @@ export function ReviewsList() {
 
     setLoading(true)
     try {
-      const res = await fetch(`http://localhost:8000/api/avis/${productId}`)
+      const res = await fetch(buildApiUrl(`/api/avis/${productId}`))
       if (res.ok) {
         const data = await res.json()
         setReviews(data)

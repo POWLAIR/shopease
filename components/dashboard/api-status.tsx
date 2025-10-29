@@ -1,10 +1,11 @@
 import { CheckCircle2, XCircle, Database } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { buildApiUrl } from "@/lib/api"
 
 async function getHealthStatus() {
   try {
-    const res = await fetch("http://localhost:8000/api/health", {
+    const res = await fetch(buildApiUrl("/api/health"), {
       cache: "no-store",
     })
     if (!res.ok) throw new Error("API non disponible")

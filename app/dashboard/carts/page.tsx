@@ -3,6 +3,8 @@ import { CartsList } from "@/components/carts/carts-list"
 import { CartsHeader } from "@/components/carts/carts-header"
 import { CartsStats } from "@/components/carts/carts-stats"
 
+export const dynamic = 'force-dynamic'
+
 export default function CartsPage() {
   return (
     <div className="flex flex-col gap-6">

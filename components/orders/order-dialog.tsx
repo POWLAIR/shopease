@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { buildApiUrl } from "@/lib/api"
 
 export function OrderDialog({
   open,
@@ -44,7 +45,7 @@ export function OrderDialog({
   const { toast } = useToast()
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/clients")
+    fetch(buildApiUrl("/api/clients"))
       .then((res) => res.json())
       .then(setClients)
       .catch(() => { })
@@ -52,7 +53,7 @@ export function OrderDialog({
 
   useEffect(() => {
     if (formData.id_client) {
-      fetch(`http://localhost:8000/api/adresses/client/${formData.id_client}`)
+      fetch(buildApiUrl(`/api/adresses/client/${formData.id_client}`))
         .then((res) => res.json())
         .then(setAddresses)
         .catch(() => { })
@@ -90,7 +91,7 @@ export function OrderDialog({
     setLoading(true)
 
     try {
-      const url = order ? `http://localhost:8000/api/commandes/${order.id}` : "http://localhost:8000/api/commandes"
+      const url = order ? buildApiUrl(`/api/commandes/${order.id}`) : buildApiUrl("/api/commandes")
       const method = order ? "PUT" : "POST"
 
       const body: any = order

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Search } from "lucide-react"
+import { buildApiUrl } from "@/lib/api"
 
 function getStatusBadge(status: string) {
   const variants: Record<string, "default" | "secondary" | "destructive"> = {
@@ -29,7 +30,7 @@ export function PaymentsList() {
 
     setLoading(true)
     try {
-      const res = await fetch(`http://localhost:8000/api/paiements/commande/${orderId}`)
+      const res = await fetch(buildApiUrl(`/api/paiements/commande/${orderId}`))
       if (res.ok) {
         const data = await res.json()
         setPayments(data)

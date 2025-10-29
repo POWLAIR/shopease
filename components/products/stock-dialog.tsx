@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
+import { buildApiUrl } from "@/lib/api"
 
 export function StockDialog({
   open,
@@ -50,7 +51,7 @@ export function StockDialog({
     setLoading(true)
 
     try {
-      const res = await fetch(`http://localhost:8000/api/produits/variantes/${variant.id}/stock`, {
+      const res = await fetch(buildApiUrl(`/api/produits/variantes/${variant.id}/stock`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

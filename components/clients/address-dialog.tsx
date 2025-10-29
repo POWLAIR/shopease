@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
+import { buildApiUrl } from "@/lib/api"
 
 export function AddressDialog({
   open,
@@ -74,7 +75,7 @@ export function AddressDialog({
     setLoading(true)
 
     try {
-      const url = address ? `http://localhost:8000/api/adresses/${address.id}` : "http://localhost:8000/api/adresses"
+      const url = address ? buildApiUrl(`/api/adresses/${address.id}`) : buildApiUrl("/api/adresses")
       const method = address ? "PUT" : "POST"
 
       const res = await fetch(url, {

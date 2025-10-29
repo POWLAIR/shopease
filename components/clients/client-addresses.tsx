@@ -7,6 +7,7 @@ import { Plus, MapPin, Home, Building } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { AddressDialog } from "./address-dialog"
 import { AddressActions } from "./address-actions"
+import { buildApiUrl } from "@/lib/api"
 
 export function ClientAddresses({ clientId }: { clientId: string }) {
   const [addresses, setAddresses] = useState<any[]>([])
@@ -15,7 +16,7 @@ export function ClientAddresses({ clientId }: { clientId: string }) {
 
   const loadAddresses = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/api/adresses/client/${clientId}`)
+      const res = await fetch(buildApiUrl(`/api/adresses/client/${clientId}`))
       if (res.ok) {
         const data = await res.json()
         setAddresses(data)

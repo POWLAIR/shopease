@@ -1,8 +1,9 @@
 import { Suspense } from "react"
 import { DashboardStats } from "@/components/dashboard/dashboard-stats"
-import { DashboardCharts } from "@/components/dashboard/dashboard-charts"
 import { RecentOrders } from "@/components/dashboard/recent-orders"
 import { ApiStatus } from "@/components/dashboard/api-status"
+
+export const dynamic = 'force-dynamic'
 
 export default function DashboardPage() {
   return (
@@ -18,10 +19,6 @@ export default function DashboardPage() {
 
       <Suspense fallback={<div>Chargement des statistiques...</div>}>
         <DashboardStats />
-      </Suspense>
-
-      <Suspense fallback={<div>Chargement des graphiques...</div>}>
-        <DashboardCharts />
       </Suspense>
 
       <Suspense fallback={<div>Chargement des commandes...</div>}>

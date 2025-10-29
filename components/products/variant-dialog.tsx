@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
+import { buildApiUrl } from "@/lib/api"
 
 export function VariantDialog({
   open,
@@ -73,8 +74,8 @@ export function VariantDialog({
       }
 
       const url = variant
-        ? `http://localhost:8000/api/produits/variantes/${variant.id}`
-        : `http://localhost:8000/api/produits/${productId}/variantes`
+        ? buildApiUrl(`/api/produits/variantes/${variant.id}`)
+        : buildApiUrl(`/api/produits/${productId}/variantes`)
       const method = variant ? "PUT" : "POST"
 
       const res = await fetch(url, {

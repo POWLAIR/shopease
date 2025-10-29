@@ -3,10 +3,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useEffect, useState } from "react"
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
+import { buildApiUrl } from "@/lib/api"
 
 async function getPaymentsStats() {
   try {
-    const res = await fetch("http://localhost:8000/api/paiements/stats", { cache: "no-store" })
+    const res = await fetch(buildApiUrl("/api/paiements/stats"), { cache: "no-store" })
     const data = res.ok ? await res.json() : null
 
     if (!data) {

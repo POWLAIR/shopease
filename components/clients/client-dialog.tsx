@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
+import { buildApiUrl } from "@/lib/api"
 
 export function ClientDialog({
   open,
@@ -62,7 +63,7 @@ export function ClientDialog({
     setLoading(true)
 
     try {
-      const url = client ? `http://localhost:8000/api/clients/${client.id}` : "http://localhost:8000/api/clients"
+      const url = client ? buildApiUrl(`/api/clients/${client.id}`) : buildApiUrl("/api/clients")
       const method = client ? "PUT" : "POST"
 
       const body: any = {

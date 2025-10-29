@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tag, TrendingUp, Percent } from "lucide-react"
+import { buildApiUrl } from "@/lib/api"
 
 async function getPromotionsStats() {
   try {
-    const res = await fetch("http://localhost:8000/api/promotions/stats", { cache: "no-store" })
+    const res = await fetch(buildApiUrl("/api/promotions/stats"), { cache: "no-store" })
     const data = res.ok ? await res.json() : null
 
     if (!data) {

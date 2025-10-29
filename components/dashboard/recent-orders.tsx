@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { buildApiUrl } from "@/lib/api"
 
 async function getRecentOrders() {
   try {
-    const res = await fetch("http://localhost:8000/api/commandes", {
+    const res = await fetch(buildApiUrl("/api/commandes"), {
       cache: "no-store",
     })
     if (!res.ok) return []

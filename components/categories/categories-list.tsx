@@ -1,15 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { CategoryActions } from "./category-actions"
+import { buildApiUrl } from "@/lib/api"
 
 async function getCategories() {
   try {
-    const res = await fetch("http://localhost:8000/api/categories", {
+    const res = await fetch(buildApiUrl("/api/categories"), {
       cache: "no-store",
     })
     if (!res.ok) return []
     return await res.json()
   } catch (error) {
+    console.error("Erreur lors de la récupération des catégories:", error)
     return []
   }
 }

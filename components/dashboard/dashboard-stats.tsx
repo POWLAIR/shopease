@@ -1,10 +1,12 @@
 import { TrendingUp, ShoppingBag, Users } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { buildApiUrl } from "@/lib/api"
 
 async function getDashboardStats() {
   try {
-    const res = await fetch("http://localhost:8000/api/stats/global", { cache: "no-store" })
+    const res = await fetch(buildApiUrl("/api/stats/global"), { cache: "no-store" })
     const data = res.ok ? await res.json() : null
+
 
     if (!data) {
       return {

@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { buildApiUrl } from "@/lib/api"
 
 export function CategoryDialog({
   open,
@@ -38,10 +39,10 @@ export function CategoryDialog({
   const { toast } = useToast()
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/categories")
+    fetch(buildApiUrl("/api/categories"))
       .then((res) => res.json())
       .then(setCategories)
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   useEffect(() => {
@@ -66,8 +67,8 @@ export function CategoryDialog({
 
     try {
       const url = category
-        ? `http://localhost:8000/api/categories/${category.id}`
-        : "http://localhost:8000/api/categories"
+        ? buildApiUrl(`/api/categories/${category.id}`)
+        : buildApiUrl("/api/categories")
       const method = category ? "PUT" : "POST"
 
       const res = await fetch(url, {

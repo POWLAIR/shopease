@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { buildApiUrl } from "@/lib/api"
 
 export function CartItems({ cartId }: { cartId: string }) {
   const [items, setItems] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/paniers/${cartId}/lignes`)
+    fetch(buildApiUrl(`/api/paniers/${cartId}/lignes`))
       .then((res) => res.json())
       .then(setItems)
       .catch(() => {})

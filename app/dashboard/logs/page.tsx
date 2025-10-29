@@ -3,6 +3,8 @@ import { LogsList } from "@/components/logs/logs-list"
 import { LogsHeader } from "@/components/logs/logs-header"
 import { LogsStats } from "@/components/logs/logs-stats"
 
+export const dynamic = 'force-dynamic'
+
 export default function LogsPage() {
   return (
     <div className="flex flex-col gap-6">

@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ShoppingCart, TrendingDown, DollarSign } from "lucide-react"
+import { buildApiUrl } from "@/lib/api"
 
 async function getCartsStats() {
   try {
-    const res = await fetch("http://localhost:8000/api/paniers/stats", { cache: "no-store" })
+    const res = await fetch(buildApiUrl("/api/paniers/stats"), { cache: "no-store" })
     const data = res.ok ? await res.json() : null
 
     if (!data) {

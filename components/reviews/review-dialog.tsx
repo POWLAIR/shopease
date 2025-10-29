@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { buildApiUrl } from "@/lib/api"
 
 export function ReviewDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const [loading, setLoading] = useState(false)
@@ -46,7 +47,7 @@ export function ReviewDialog({ open, onOpenChange }: { open: boolean; onOpenChan
     setLoading(true)
 
     try {
-      const res = await fetch("http://localhost:8000/api/avis", {
+      const res = await fetch(buildApiUrl("/api/avis"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

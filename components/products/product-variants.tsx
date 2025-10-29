@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { VariantDialog } from "./variant-dialog"
 import { VariantActions } from "./variant-actions"
+import { buildApiUrl } from "@/lib/api"
 
 export function ProductVariants({ productId }: { productId: string }) {
   const [variants, setVariants] = useState<any[]>([])
@@ -15,7 +16,7 @@ export function ProductVariants({ productId }: { productId: string }) {
 
   const loadVariants = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/api/produits/${productId}/variantes`)
+      const res = await fetch(buildApiUrl(`/api/produits/${productId}/variantes`))
       if (res.ok) {
         const data = await res.json()
         setVariants(data)

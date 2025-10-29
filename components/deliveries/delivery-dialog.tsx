@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { buildApiUrl } from "@/lib/api"
 
 export function DeliveryDialog({
   open,
@@ -64,8 +65,8 @@ export function DeliveryDialog({
 
     try {
       const url = delivery
-        ? `http://localhost:8000/api/livraisons/${delivery.id}`
-        : "http://localhost:8000/api/livraisons"
+        ? buildApiUrl(`/api/livraisons/${delivery.id}`)
+        : buildApiUrl("/api/livraisons")
       const method = delivery ? "PUT" : "POST"
 
       const body: any = {

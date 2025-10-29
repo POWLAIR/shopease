@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { buildApiUrl } from "@/lib/api"
 
 async function getClient(id: string) {
   try {
-    const res = await fetch(`http://localhost:8000/api/clients`, {
+    const res = await fetch(buildApiUrl("/api/clients"), {
       cache: "no-store",
     })
     if (!res.ok) return null

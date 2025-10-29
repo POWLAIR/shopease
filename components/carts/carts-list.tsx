@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { CartActions } from "./cart-actions"
+import { buildApiUrl } from "@/lib/api"
 
 async function getCarts() {
   try {
-    const res = await fetch("http://localhost:8000/api/paniers", { cache: "no-store" })
+    const res = await fetch(buildApiUrl("/api/paniers"), { cache: "no-store" })
     if (!res.ok) return []
     return await res.json()
   } catch (error) {

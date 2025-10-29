@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { buildApiUrl } from "@/lib/api"
 
 export function ProductDialog({
   open,
@@ -43,7 +44,7 @@ export function ProductDialog({
   const { toast } = useToast()
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/categories")
+    fetch(buildApiUrl("/api/categories"))
       .then((res) => res.json())
       .then(setCategories)
       .catch(() => {})
@@ -76,7 +77,7 @@ export function ProductDialog({
     setLoading(true)
 
     try {
-      const url = product ? `http://localhost:8000/api/produits/${product.id}` : "http://localhost:8000/api/produits"
+      const url = product ? buildApiUrl(`/api/produits/${product.id}`) : buildApiUrl("/api/produits")
       const method = product ? "PUT" : "POST"
 
       const res = await fetch(url, {

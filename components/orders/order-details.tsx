@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { buildApiUrl } from "@/lib/api"
 
 async function getOrder(id: string) {
   try {
-    const res = await fetch(`http://localhost:8000/api/commandes/${id}`, { cache: "no-store" })
+    const res = await fetch(buildApiUrl(`/api/commandes/${id}`), { cache: "no-store" })
     if (!res.ok) return null
     return await res.json()
   } catch (error) {

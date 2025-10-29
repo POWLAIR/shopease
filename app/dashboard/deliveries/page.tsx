@@ -4,6 +4,8 @@ import { DeliveriesHeader } from "@/components/deliveries/deliveries-header"
 import { DeliveriesStats } from "@/components/deliveries/deliveries-stats"
 import { DeliveriesChart } from "@/components/deliveries/deliveries-chart"
 
+export const dynamic = 'force-dynamic'
+
 export default function DeliveriesPage() {
   return (
     <div className="flex flex-col gap-6">

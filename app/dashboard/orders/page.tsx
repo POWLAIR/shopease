@@ -4,6 +4,8 @@ import { OrdersHeader } from "@/components/orders/orders-header"
 import { OrdersStats } from "@/components/orders/orders-stats"
 import { OrdersCharts } from "@/components/orders/orders-charts"
 
+export const dynamic = 'force-dynamic'
+
 export default function OrdersPage() {
   return (
     <div className="flex flex-col gap-6">

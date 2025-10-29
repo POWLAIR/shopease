@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
+export const dynamic = 'force-dynamic'
+
 export default function ClientDetailPage({ params }: { params: { id: string } }) {
   return (
     <div className="flex flex-col gap-6">

@@ -4,6 +4,8 @@ import { ReviewsHeader } from "@/components/reviews/reviews-header"
 import { ReviewsStats } from "@/components/reviews/reviews-stats"
 import { ReviewsChart } from "@/components/reviews/reviews-chart"
 
+export const dynamic = 'force-dynamic'
+
 export default function ReviewsPage() {
   return (
     <div className="flex flex-col gap-6">

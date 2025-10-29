@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ClientActions } from "./client-actions"
+import { buildApiUrl } from "@/lib/api"
 
 async function getClients() {
   try {
-    const res = await fetch("http://localhost:8000/api/clients", {
+    const res = await fetch(buildApiUrl("/api/clients"), {
       cache: "no-store",
     })
     if (!res.ok) return []

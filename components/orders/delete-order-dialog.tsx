@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
+import { buildApiUrl } from "@/lib/api"
 
 export function DeleteOrderDialog({
   open,
@@ -30,7 +31,7 @@ export function DeleteOrderDialog({
   const handleDelete = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`http://localhost:8000/api/commandes/${orderId}`, {
+      const res = await fetch(buildApiUrl(`/api/commandes/${orderId}`), {
         method: "DELETE",
       })
 
