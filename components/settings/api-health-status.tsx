@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,17 +21,22 @@ async function getHealthStatus() {
 export function ApiHealthStatus() {
   const [health, setHealth] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const mountedRef = useRef(true)
 
   const refreshStatus = async () => {
     setLoading(true)
     const status = await getHealthStatus()
+    if (!mountedRef.current) return
     setHealth(status)
     setLoading(false)
   }
 
-  useState(() => {
+  useEffect(() => {
     refreshStatus()
-  })
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
 
   if (!health) {
     return (
@@ -114,10 +119,6 @@ export function ApiHealthStatus() {
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">API URL</span>
             <span className="text-sm font-mono">http://localhost:8000</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-muted-foreground">Environnement</span>
-            <span className="text-sm font-medium">Développement</span>
           </div>
         </CardContent>
       </Card>

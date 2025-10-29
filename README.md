@@ -141,6 +141,8 @@ shopease-mongo-express-1 Up                 0.0.0.0:8082->8081/tcp
 
 #### 3. Tester l'API
 
+Vous pouvez ensuite tester l'API sur le frontend (http://localhost:3000)
+
 ```bash
 # Vérifier la santé de l'API
 curl http://localhost:8000/api/health
@@ -188,6 +190,23 @@ docker exec -it shopease_mongo mongosh shopease
 # Depuis l'hôte  
 mongosh "mongodb://localhost:27017/shopease"
 ```
+
+--- 
+
+## 🔧 Frontend (Next.js) — développement local
+
+Le frontend est inclus dans ce dépôt à la racine, lancez-le avec pnpm :
+
+- Installer les dépendances
+  ```bash
+  pnpm install
+  ```
+
+- Lancer le frontend (Next.js)
+  ```bash
+  pnpm run dev
+  # par défaut: http://localhost:3000
+  ```
 
 ---
 
