@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import (
     health, categories, produits, clients, adresses, paniers,
-    commandes, paiements, livraisons, promotions, avis, logs
+    commandes, paiements, livraisons, promotions, avis, logs, stats
 )
 from app.db.postgres import ensure_pg_pool
 from app.db.mongo import ensure_mongo_client
@@ -19,6 +19,7 @@ app.add_middleware(
 
 # Routers
 app.include_router(health.router)
+app.include_router(stats.router)
 app.include_router(categories.router)
 app.include_router(produits.router)
 app.include_router(clients.router)

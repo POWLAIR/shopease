@@ -6,6 +6,7 @@ router = APIRouter(prefix="/api/commandes", tags=["commandes"])
 
 @router.get("")
 async def list_commandes(pool=Depends(get_pg)):
+    """Lister toutes les commandes"""
     async with pool.acquire() as conn:
         rows = await conn.fetch(
             """
@@ -18,6 +19,75 @@ async def list_commandes(pool=Depends(get_pg)):
             """
         )
     return [dict(r) for r in rows]
+
+@router.get("/stats")
+async def get_commandes_stats(pool=Depends(get_pg)):
+    """Statistiques sur les commandes"""
+    async with pool.acquire() as conn:
+        # Statistiques générales
+        stats = await conn.fetchrow(
+            """
+            SELECT 
+                COUNT(*) as total_commandes,
+                COUNT(*) FILTER (WHERE statut IN ('PAYEE', 'PREPAREE', 'EXPEDIEE', 'LIVREE')) as nb_validees,
+                COUNT(*) FILTER (WHERE statut IN ('BROUILLON', 'EN_ATTENTE_PAIEMENT')) as nb_en_attente,
+                COUNT(*) FILTER (WHERE statut = 'ANNULEE') as nb_annulees,
+                COALESCE(SUM(total_ttc), 0) as montant_total,
+                COALESCE(AVG(total_ttc), 0) as montant_moyen
+            FROM commande;
+            """
+        )
+        
+        # Répartition par statut avec pourcentage
+        statuts = await conn.fetch(
+            """
+            SELECT 
+                statut,
+                COUNT(*) as count,
+                ROUND(COUNT(*) * 100.0 / NULLIF((SELECT COUNT(*) FROM commande), 0), 2) as pourcentage
+            FROM commande
+            GROUP BY statut
+            ORDER BY count DESC;
+            """
+        )
+        
+        # Volume de commandes par jour (30 derniers jours)
+        volume_par_jour = await conn.fetch(
+            """
+            SELECT 
+                DATE(created_at) as date,
+                COUNT(*) as nombre_commandes,
+                COALESCE(SUM(total_ttc), 0) as total_ventes
+            FROM commande
+            WHERE created_at >= NOW() - INTERVAL '30 days'
+            GROUP BY DATE(created_at)
+            ORDER BY date DESC;
+            """
+        )
+    
+    return {
+        "total_commandes": int(stats["total_commandes"]),
+        "nombre_validees": int(stats["nb_validees"]),
+        "nombre_en_attente": int(stats["nb_en_attente"]),
+        "nombre_annulees": int(stats["nb_annulees"]),
+        "montant_total": float(stats["montant_total"]),
+        "montant_moyen": round(float(stats["montant_moyen"]), 2),
+        "taux_validation": round((int(stats["nb_validees"]) / int(stats["total_commandes"]) * 100), 2) if int(stats["total_commandes"]) > 0 else 0,
+        "repartition_par_statut": [
+            {
+                "statut": str(r["statut"]),
+                "count": int(r["count"]),
+                "pourcentage": float(r["pourcentage"]) if r["pourcentage"] else 0
+            } for r in statuts
+        ],
+        "volume_par_jour": [
+            {
+                "date": str(r["date"]),
+                "nombre_commandes": int(r["nombre_commandes"]),
+                "total_ventes": float(r["total_ventes"])
+            } for r in volume_par_jour
+        ]
+    }
 
 @router.get("/{id}")
 async def get_commande(id: str, pool=Depends(get_pg)):

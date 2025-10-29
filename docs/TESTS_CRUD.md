@@ -271,6 +271,364 @@ Chaque type de log a sa propre structure adaptée :
 
 ---
 
+## 📊 Tests des Endpoints de Statistiques
+
+### 1. **Stats Globales**
+
+```bash
+# Vue d'ensemble de toute la plateforme
+curl http://localhost:3000/api/stats/global
+
+# KPIs du tableau de bord
+curl http://localhost:3000/api/stats/dashboard
+```
+
+**Résultat attendu (stats/global):**
+
+```json
+{
+  "ventes": {
+    "total_ventes": 7387.89,
+    "total_commandes": 5,
+    "commandes_validees": 4,
+    "panier_moyen": 1477.58,
+    "taux_conversion": 80.0
+  },
+  "clients": {
+    "total_clients": 5
+  },
+  "catalogue": {
+    "total_produits": 9,
+    "total_variantes": 22,
+    "total_stock": 232
+  },
+  "avis": {
+    "total_avis": 6,
+    "note_moyenne": 4.33
+  }
+}
+```
+
+---
+
+### 2. **Stats Avis** (MongoDB Agrégations)
+
+```bash
+# Tous les avis
+curl http://localhost:3000/api/avis
+
+# Statistiques avec agrégations
+curl http://localhost:3000/api/avis/stats
+```
+
+**Résultat attendu (avis/stats):**
+
+```json
+{
+  "note_moyenne": 4.33,
+  "total_avis": 6,
+  "avis_ce_mois": 0,
+  "repartition_notes": {
+    "5_etoiles": 3,
+    "4_etoiles": 2,
+    "3_etoiles": 1,
+    "2_etoiles": 0,
+    "1_etoiles": 0
+  }
+}
+```
+
+**Agrégations MongoDB utilisées:**
+
+- `$avg` : Calcul de la note moyenne
+- `$match` : Filtrage par date (avis du mois)
+- `$group` : Regroupement par note
+- `$facet` : Exécution de plusieurs agrégations en parallèle
+
+---
+
+### 3. **Stats Logs** (MongoDB Agrégations)
+
+```bash
+# Tous les logs
+curl http://localhost:3000/api/logs
+
+# Statistiques d'activité
+curl http://localhost:3000/api/logs/stats
+```
+
+**Résultat attendu (logs/stats):**
+
+```json
+{
+  "total_logs": 15,
+  "actions_frequentes": [
+    {
+      "action": "LOGIN",
+      "count": 5,
+      "pourcentage": 33.33
+    },
+    {
+      "action": "ADD_TO_CART",
+      "count": 4,
+      "pourcentage": 26.67
+    }
+  ],
+  "types_frequents": [
+    {
+      "type": "AUTH",
+      "count": 5,
+      "pourcentage": 33.33
+    },
+    {
+      "type": "CART",
+      "count": 4,
+      "pourcentage": 26.67
+    }
+  ]
+}
+```
+
+**Agrégations MongoDB utilisées:**
+
+- `$count` : Comptage total
+- `$group` : Regroupement par action/type
+- `$sort` : Tri par fréquence
+- `$limit` : Limitation des résultats
+
+---
+
+### 4. **Stats Promotions** (PostgreSQL)
+
+```bash
+# Statistiques sur les promotions
+curl http://localhost:3000/api/promotions/stats
+```
+
+**Résultat attendu:**
+
+```json
+{
+  "promotions_actives": [
+    {
+      "id": "uuid",
+      "libelle": "Soldes d'été",
+      "type": "PERCENT",
+      "valeur": 15.0,
+      "date_debut": "2024-06-01T00:00:00Z",
+      "date_fin": "2024-08-31T23:59:59Z"
+    }
+  ],
+  "nombre_actives": 2,
+  "total_promotions": 4,
+  "reduction_moyenne_pourcentage": 12.5,
+  "reduction_moyenne_montant": 0
+}
+```
+
+**Techniques SQL utilisées:**
+
+- `COUNT(*) FILTER (WHERE ...)` : Comptage conditionnel
+- `AVG(CASE WHEN ... THEN ... END)` : Moyenne conditionnelle
+- Filtrage temporel avec `NOW()`
+
+---
+
+### 5. **Stats Paiements** (PostgreSQL)
+
+```bash
+# Statistiques détaillées sur les paiements
+curl http://localhost:3000/api/paiements/stats
+```
+
+**Résultat attendu:**
+
+```json
+{
+  "montant_total": 7387.89,
+  "montant_moyen": 1477.58,
+  "total_paiements": 5,
+  "nombre_reussis": 4,
+  "nombre_echoues": 0,
+  "nombre_rembourses": 0,
+  "taux_reussite": 80.0,
+  "repartition_par_mode": [
+    {
+      "mode": "carte",
+      "count": 4,
+      "pourcentage": 80.0
+    },
+    {
+      "mode": "paypal",
+      "count": 1,
+      "pourcentage": 20.0
+    }
+  ],
+  "repartition_par_statut": [
+    {
+      "statut": "CAPTURED",
+      "count": 4,
+      "pourcentage": 80.0
+    },
+    {
+      "statut": "CREATED",
+      "count": 1,
+      "pourcentage": 20.0
+    }
+  ]
+}
+```
+
+**Techniques SQL utilisées:**
+
+- `SUM()`, `AVG()` : Agrégations
+- `COUNT(*) FILTER (WHERE ...)` : Comptages par statut
+- `GROUP BY` + calcul de pourcentage
+
+---
+
+### 6. **Stats Commandes** (PostgreSQL)
+
+```bash
+# Statistiques complètes sur les commandes
+curl http://localhost:3000/api/commandes/stats
+```
+
+**Résultat attendu:**
+
+```json
+{
+  "total_commandes": 5,
+  "nombre_validees": 4,
+  "nombre_en_attente": 1,
+  "nombre_annulees": 0,
+  "montant_total": 7387.89,
+  "montant_moyen": 1477.58,
+  "taux_validation": 80.0,
+  "repartition_par_statut": [
+    {
+      "statut": "LIVREE",
+      "count": 1,
+      "pourcentage": 20.0
+    },
+    {
+      "statut": "EXPEDIEE",
+      "count": 1,
+      "pourcentage": 20.0
+    },
+    {
+      "statut": "EN_ATTENTE_PAIEMENT",
+      "count": 1,
+      "pourcentage": 20.0
+    }
+  ],
+  "volume_par_jour": [
+    {
+      "date": "2024-06-01",
+      "nombre_commandes": 1,
+      "total_ventes": 227.97
+    }
+  ]
+}
+```
+
+**Techniques SQL utilisées:**
+
+- Agrégations multiples avec `COUNT()`, `SUM()`, `AVG()`
+- `DATE()` : Extraction de la date
+- `INTERVAL` : Filtrage temporel (30 derniers jours)
+- `GROUP BY DATE()` : Regroupement par jour
+
+---
+
+### 7. **Stats Paniers** (PostgreSQL)
+
+```bash
+# Analyse des paniers (taux d'abandon, montant moyen)
+curl http://localhost:3000/api/paniers/stats
+```
+
+**Résultat attendu:**
+
+```json
+{
+  "total_paniers": 3,
+  "paniers_abandonnes": 0,
+  "paniers_actifs": 3,
+  "taux_abandon": 0.0,
+  "montant_moyen": 245.83,
+  "details_paniers_abandonnes": []
+}
+```
+
+**Critère d'abandon:** Panier non modifié depuis plus de 7 jours
+
+**Techniques SQL utilisées:**
+
+- `LEFT JOIN` avec sous-requête pour calcul des montants
+- `EXTRACT(DAY FROM ...)` : Calcul de différence en jours
+- `INTERVAL '7 days'` : Critère d'abandon
+
+---
+
+### 8. **Stats Clients** (PostgreSQL)
+
+```bash
+# Statistiques sur les clients
+curl http://localhost:3000/api/clients/stats
+```
+
+**Résultat attendu:**
+
+```json
+{
+  "total_clients": 5,
+  "nouveaux_ce_mois": 0,
+  "nombre_moyen_adresses": 1.2,
+  "top_clients": [
+    {
+      "id": "uuid",
+      "prenom": "Sophie",
+      "nom": "Martin",
+      "email": "sophie.martin@example.com",
+      "nb_commandes": 1,
+      "total_depense": 2627.97
+    }
+  ],
+  "nouveaux_clients": []
+}
+```
+
+**Techniques SQL utilisées:**
+
+- `DATE_TRUNC('month', NOW())` : Début du mois courant
+- Sous-requête pour calcul du nombre moyen d'adresses
+- `ORDER BY` multiple pour classement
+
+---
+
+## 🎯 Test Complet en Une Commande
+
+```bash
+# Tester tous les endpoints de statistiques d'un coup
+echo "=== STATS GLOBALES ===" && \
+curl -s http://localhost:3000/api/stats/global | jq '.ventes' && \
+echo "\n=== STATS AVIS ===" && \
+curl -s http://localhost:3000/api/avis/stats | jq '.note_moyenne, .total_avis' && \
+echo "\n=== STATS LOGS ===" && \
+curl -s http://localhost:3000/api/logs/stats | jq '.total_logs' && \
+echo "\n=== STATS COMMANDES ===" && \
+curl -s http://localhost:3000/api/commandes/stats | jq '.total_commandes, .montant_total' && \
+echo "\n=== STATS PAIEMENTS ===" && \
+curl -s http://localhost:3000/api/paiements/stats | jq '.taux_reussite' && \
+echo "\n=== STATS PANIERS ===" && \
+curl -s http://localhost:3000/api/paniers/stats | jq '.taux_abandon' && \
+echo "\n=== STATS CLIENTS ===" && \
+curl -s http://localhost:3000/api/clients/stats | jq '.total_clients'
+```
+
+---
+
 ## 🔗 Interfaces Web
 
 - **API**: <http://localhost:8000>

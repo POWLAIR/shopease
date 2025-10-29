@@ -10,8 +10,73 @@ async def list_paniers(pool=Depends(get_pg)):
         rows = await conn.fetch("SELECT * FROM panier ORDER BY created_at DESC;")
     return [dict(r) for r in rows]
     
+@router.get("/stats")
+async def get_paniers_stats(pool=Depends(get_pg)):
+    """Statistiques sur les paniers"""
+    async with pool.acquire() as conn:
+        # Statistiques générales
+        stats = await conn.fetchrow(
+            """
+            SELECT 
+                COUNT(*) as total_paniers,
+                -- Paniers abandonnés : dernière mise à jour > 7 jours avant aujourd'hui
+                COUNT(*) FILTER (WHERE updated_at < NOW() - INTERVAL '7 days') as paniers_abandonnes,
+                -- Montant moyen des paniers (avec lignes)
+                COALESCE(AVG(panier_montant.montant), 0) as montant_moyen
+            FROM panier p
+            LEFT JOIN (
+                SELECT 
+                    lp.id_panier,
+                    SUM(lp.quantite * v.prix_ht) as montant
+                FROM ligne_panier lp
+                JOIN variante v ON v.id = lp.id_variante
+                GROUP BY lp.id_panier
+            ) panier_montant ON panier_montant.id_panier = p.id;
+            """
+        )
+        
+        # Détails des paniers abandonnés
+        paniers_abandonnes = await conn.fetch(
+            """
+            SELECT 
+                p.id,
+                p.created_at,
+                p.updated_at,
+                EXTRACT(DAY FROM (NOW() - p.updated_at)) as jours_depuis_maj,
+                COALESCE(SUM(lp.quantite * v.prix_ht), 0) as montant_estime
+            FROM panier p
+            LEFT JOIN ligne_panier lp ON lp.id_panier = p.id
+            LEFT JOIN variante v ON v.id = lp.id_variante
+            WHERE p.updated_at < NOW() - INTERVAL '7 days'
+            GROUP BY p.id, p.created_at, p.updated_at
+            ORDER BY p.updated_at DESC
+            LIMIT 20;
+            """
+        )
+    
+    total = int(stats["total_paniers"])
+    abandonnes = int(stats["paniers_abandonnes"])
+    
+    return {
+        "total_paniers": total,
+        "paniers_abandonnes": abandonnes,
+        "paniers_actifs": total - abandonnes,
+        "taux_abandon": round((abandonnes / total * 100), 2) if total > 0 else 0,
+        "montant_moyen": round(float(stats["montant_moyen"]), 2),
+        "details_paniers_abandonnes": [
+            {
+                "id": str(r["id"]),
+                "created_at": str(r["created_at"]),
+                "updated_at": str(r["updated_at"]),
+                "jours_depuis_maj": int(r["jours_depuis_maj"]),
+                "montant_estime": float(r["montant_estime"])
+            } for r in paniers_abandonnes
+        ]
+    }
+
 @router.get("/{id}")
 async def get_panier(id: str, pool=Depends(get_pg)):
+    """Récupérer un panier par ID"""
     async with pool.acquire() as conn:
         row = await conn.fetchrow("SELECT * FROM panier WHERE id=$1;", id)
     if not row:

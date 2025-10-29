@@ -9,8 +9,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgres/init:/docker-entrypoint-initdb.d
-      - ./postgres/data:/var/lib/postgresql/data
+      - ./api/postgres/init:/docker-entrypoint-initdb.d
+      - ./api/postgres/data:/var/lib/postgresql/data
     healthcheck:
       test:
         [
@@ -21,7 +21,7 @@ services:
       timeout: 3s
       retries: 20
     networks:
-      - backend
+      - shopease-network
 
   mongo:
     image: mongo:7
@@ -30,18 +30,19 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./mongo/init:/docker-entrypoint-initdb.d
-      - ./mongo/data:/data/db
+      - ./api/mongo/init:/docker-entrypoint-initdb.d
+      - ./api/mongo/data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 5s
       timeout: 3s
       retries: 20
     networks:
-      - backend
+      - shopease-network
 
   pgadmin:
     image: dpage/pgadmin4:8
+    container_name: shopease_pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
@@ -54,11 +55,12 @@ services:
     depends_on:
       - postgres
     networks:
-      - backend
+      - shopease-network
     restart: unless-stopped
 
   mongo-express:
     image: mongo-express:latest
+    container_name: shopease_mongo_express
     environment:
       ME_CONFIG_MONGODB_URL: mongodb://mongo:27017
     ports:
@@ -66,25 +68,59 @@ services:
     depends_on:
       - mongo
     networks:
-      - backend
+      - shopease-network
+    restart: unless-stopped
 
   api:
-    build: ./api
+    build:
+      context: ./api/fastApi
+      dockerfile: Dockerfile
     container_name: shopease_api
-    env_file: .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-shopease}
+      - POSTGRES_USER=${POSTGRES_USER:-admin}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-admin}
+      - MONGO_URI=mongodb://mongo:27017
+      - MONGO_DB=shopease
     ports:
       - "${API_PORT:-8000}:8000"
+    volumes:
+      - ./api/fastApi/app:/app/app
     depends_on:
       postgres:
         condition: service_healthy
       mongo:
         condition: service_healthy
     networks:
-      - backend
+      - shopease-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: runner # Production optimisée (multi-stage)
+    container_name: shopease_frontend
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - HOSTNAME=0.0.0.0
+      - PORT=3000
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      - api
+    networks:
+      - shopease-network
+    restart: unless-stopped
 
 networks:
-  backend:
+  shopease-network:
     driver: bridge
+    name: shopease-network
 
 volumes:
   pgadmin-data:
+    name: shopease_pgadmin_data

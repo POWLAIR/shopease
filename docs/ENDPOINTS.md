@@ -1,29 +1,66 @@
-# Documentation des Endpoints API - ShopEase
+# 📚 Documentation API - ShopEase
 
-## 📋 Table des matières
+> API REST complète avec endpoints CRUD et agrégations avancées (MongoDB + PostgreSQL)
 
-- [Health Check](#health-check)
-- [Produits](#produits)
-- [Catégories](#catégories)
-- [Clients](#clients)
-- [Adresses](#adresses)
-- [Paniers](#paniers)
-- [Commandes](#commandes)
-- [Paiements](#paiements)
-- [Livraisons](#livraisons)
-- [Promotions](#promotions)
-- [Avis](#avis)
-- [Logs](#logs)
+**Base URL :** `http://localhost:8000`  
+**Documentation interactive :** <http://localhost:8000/docs>
 
 ---
 
-## Health Check
+## 📋 Table des Matières
 
-### GET `/api/health`
+### 🔧 Endpoints de Base
 
-Vérifie l'état de santé de l'API et des connexions aux bases de données.
+- [Health Check](#-health-check)
 
-**Réponse:**
+### 📦 CRUD Produits & Catalogue
+
+- [Produits](#-produits)
+- [Variantes](#-variantes)
+- [Catégories](#-catégories)
+- [Stock](#-stock)
+
+### 👥 CRUD Clients & Adresses
+
+- [Clients](#-clients)
+- [Adresses](#-adresses)
+
+### 🛒 CRUD Panier & Commandes
+
+- [Paniers](#-paniers)
+- [Commandes](#-commandes)
+- [Paiements](#-paiements)
+- [Livraisons](#-livraisons)
+
+### 🎁 Promotions & Avis
+
+- [Promotions](#-promotions)
+- [Avis (MongoDB)](#-avis-mongodb)
+- [Logs (MongoDB)](#-logs-mongodb)
+
+### 📊 Statistiques & Agrégations
+
+- [Stats Globales](#-stats-globales)
+- [Stats par Entité](#-stats-par-entité)
+  - [Avis](#stats-avis)
+  - [Logs](#stats-logs)
+  - [Promotions](#stats-promotions)
+  - [Paiements](#stats-paiements)
+  - [Commandes](#stats-commandes)
+  - [Paniers](#stats-paniers)
+  - [Clients](#stats-clients)
+
+---
+
+## 🔧 Health Check
+
+### Vérifier l'état de l'API
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/health` | État de l'API et connexions BDD |
+
+**Réponse :**
 
 ```json
 {
@@ -35,349 +72,200 @@ Vérifie l'état de santé de l'API et des connexions aux bases de données.
 
 ---
 
-## Produits
+## 📦 Produits
 
-### GET `/api/produits`
+### Endpoints Disponibles
 
-Liste tous les produits avec filtres optionnels.
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/produits` | Lister tous les produits |
+| **GET** | `/api/produits?q={recherche}` | Rechercher par texte |
+| **GET** | `/api/produits?categorie_slug={slug}` | Filtrer par catégorie |
+| **POST** | `/api/produits` | Créer un produit |
+| **PUT** | `/api/produits/{id}` | Modifier un produit |
+| **DELETE** | `/api/produits/{id}` | Supprimer un produit |
 
-**Query Parameters:**
+### Créer un Produit
 
-- `q` (optional): Recherche textuelle sur nom et description
-- `categorie_slug` (optional): Filtrer par slug de catégorie
-
-**Réponse:** Liste de produits avec leurs catégories
-
-### POST `/api/produits`
-
-Créer un nouveau produit.
-
-**Body:**
+**POST** `/api/produits`
 
 ```json
 {
   "id_categorie": "uuid",
-  "nom": "string",
-  "slug": "string",
-  "description": "string",
+  "nom": "MacBook Pro 14\"",
+  "slug": "macbook-pro-14",
+  "description": "Ordinateur portable haute performance",
   "tva": 20.0,
   "actif": true
 }
 ```
 
-**Status:** `201 Created`
+**Réponse : `201 Created`**
 
-### PUT `/api/produits/{id}`
+### Modifier un Produit
 
-Mettre à jour un produit existant.
+**PUT** `/api/produits/{id}`
 
-**Path Parameters:**
-
-- `id`: UUID du produit
-
-**Body:** Même structure que POST (tous champs optionnels)
-
-**Réponse:** Produit mis à jour
-
-### DELETE `/api/produits/{id}`
-
-Supprimer un produit.
-
-**Path Parameters:**
-
-- `id`: UUID du produit
-
-**Status:** `204 No Content`
+Tous les champs sont optionnels. Seuls les champs fournis seront modifiés.
 
 ---
 
-## Variantes de Produits
+## 🔧 Variantes
 
-### GET `/api/produits/{id}/variantes`
+### Endpoints Disponibles
 
-Liste toutes les variantes d'un produit avec leur stock.
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/produits/{id}/variantes` | Variantes d'un produit |
+| **POST** | `/api/produits/{id}/variantes` | Créer une variante |
+| **PUT** | `/api/produits/variantes/{variante_id}` | Modifier une variante |
+| **PATCH** | `/api/produits/variantes/{variante_id}/stock` | Modifier le stock |
 
-**Path Parameters:**
+### Créer une Variante
 
-- `id`: UUID du produit
-
-**Réponse:** Liste de variantes avec informations de stock
-
-### POST `/api/produits/{id}/variantes`
-
-Créer une variante pour un produit.
-
-**Path Parameters:**
-
-- `id`: UUID du produit
-
-**Body:**
+**POST** `/api/produits/{id}/variantes`
 
 ```json
 {
-  "sku": "string",
-  "ean": "string",
-  "prix_ht": 99.99,
-  "poids_g": 500,
+  "sku": "MBP14-512-SG",
+  "ean": "1234567890123",
+  "prix_ht": 1999.99,
+  "poids_g": 1600,
+  "attributs_json": {
+    "couleur": "Gris sidéral",
+    "ram": "16GB",
+    "stockage": "512GB"
+  }
 }
 ```
 
-**Status:** `201 Created`
+**Réponse : `201 Created`**
 
-### PUT `/api/produits/variantes/{variante_id}`
+---
 
-Mettre à jour une variante.
+## 📂 Catégories
 
-**Path Parameters:**
+### Endpoints Disponibles
 
-- `variante_id`: UUID de la variante
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/categories` | Lister toutes les catégories |
+| **POST** | `/api/categories` | Créer une catégorie |
+| **PUT** | `/api/categories/{id}` | Modifier une catégorie |
+| **DELETE** | `/api/categories/{id}` | Supprimer une catégorie |
 
-**Body:** Même structure que POST (tous champs optionnels)
+### Créer une Catégorie
 
-### PATCH `/api/produits/variantes/{variante_id}/stock`
-
-Mettre à jour le stock d'une variante.
-
-**Path Parameters:**
-
-- `variante_id`: UUID de la variante
-
-**Body:**
+**POST** `/api/categories`
 
 ```json
 {
-  "quantite": 100,
-  "reservee": 5,
-  "seuil_alerte": 10
+  "libelle": "Ordinateurs Portables",
+  "slug": "ordinateurs-portables",
+  "parent_id": "uuid-parent" // optionnel pour sous-catégorie
 }
 ```
 
 ---
 
-## Catégories
+## 📦 Stock
 
-### GET `/api/categories`
+### Modifier le Stock
 
-Liste toutes les catégories.
-
-**Réponse:** Liste de catégories triées par libellé
-
-### POST `/api/categories`
-
-Créer une nouvelle catégorie.
-
-**Body:**
+**PATCH** `/api/produits/variantes/{variante_id}/stock`
 
 ```json
 {
-  "libelle": "string",
-  "slug": "string",
-  "parent_id": "uuid" // optionnel
+  "quantite": 100,      // Stock total
+  "reservee": 5,        // Stock réservé (paniers)
+  "seuil_alerte": 10    // Alerte stock faible
 }
 ```
 
-**Status:** `201 Created`
-
-### PUT `/api/categories/{id}`
-
-Mettre à jour une catégorie.
-
-**Path Parameters:**
-
-- `id`: UUID de la catégorie
-
-**Body:** Même structure que POST (tous champs optionnels)
-
-### DELETE `/api/categories/{id}`
-
-Supprimer une catégorie.
-
-**Path Parameters:**
-
-- `id`: UUID de la catégorie
-
-**Status:** `204 No Content`
-
 ---
 
-## Clients
+## 👥 Clients
 
-### GET `/api/clients`
+### Endpoints Disponibles
 
-Liste tous les clients (sans mot de passe).
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/clients` | Lister tous les clients |
+| **GET** | `/api/clients/stats` | 📊 Statistiques clients |
+| **POST** | `/api/clients` | Créer un client |
+| **PUT** | `/api/clients/{id}` | Modifier un client |
+| **DELETE** | `/api/clients/{id}` | Supprimer un client |
 
-**Réponse:** Liste de clients triés par date de création
+### Créer un Client
 
-### POST `/api/clients`
-
-Créer un nouveau client.
-
-**Body:**
+**POST** `/api/clients`
 
 ```json
 {
-  "prenom": "string",
-  "nom": "string",
-  "email": "email@example.com",
-  "tel": "0612345678",
+  "prenom": "Jean",
+  "nom": "Dupont",
+  "email": "jean.dupont@example.com",
+  "tel": "+33612345678",
   "pwd_hash": "hashed_password"
 }
 ```
 
-**Status:** `201 Created`
-
-### PUT `/api/clients/{id}`
-
-Mettre à jour un client.
-
-**Path Parameters:**
-
-- `id`: UUID du client
-
-**Body:** Même structure que POST (tous champs optionnels)
-
-### DELETE `/api/clients/{id}`
-
-Supprimer un client.
-
-**Path Parameters:**
-
-- `id`: UUID du client
-
-**Status:** `204 No Content`
-
 ---
 
-## Adresses
+## 🏠 Adresses
 
-### GET `/api/adresses/client/{id_client}`
+### Endpoints Disponibles
 
-Liste toutes les adresses d'un client.
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/adresses/client/{client_id}` | Adresses d'un client |
+| **POST** | `/api/adresses` | Créer une adresse |
+| **PUT** | `/api/adresses/{id}` | Modifier une adresse |
+| **DELETE** | `/api/adresses/{id}` | Supprimer une adresse |
 
-**Path Parameters:**
+### Créer une Adresse
 
-- `id_client`: UUID du client
-
-**Réponse:** Liste d'adresses triées par libellé
-
-### POST `/api/adresses`
-
-Créer une nouvelle adresse.
-
-**Body:**
+**POST** `/api/adresses`
 
 ```json
 {
   "id_client": "uuid",
-  "libelle": "Domicile",
-  "ligne1": "123 Rue Example",
-  "ligne2": "Appartement 4B",
+  "libelle": "Maison",
+  "ligne1": "15 Rue de la Paix",
+  "ligne2": "Appartement 3B",
   "code_postal": "75001",
   "ville": "Paris",
   "pays": "France",
-  "is_default_billing": false,
-  "is_default_shipping": false
+  "is_default_billing": true,
+  "is_default_shipping": true
 }
 ```
 
-**Status:** `201 Created`
-
-### PUT `/api/adresses/{id}`
-
-Mettre à jour une adresse.
-
-**Path Parameters:**
-
-- `id`: UUID de l'adresse
-
-**Body:** Même structure que POST (tous champs optionnels)
-
-### DELETE `/api/adresses/{id}`
-
-Supprimer une adresse.
-
-**Path Parameters:**
-
-- `id`: UUID de l'adresse
-
-**Status:** `204 No Content`
-
 ---
 
-## Paniers
+## 🛒 Paniers
 
 ### GET `/api/paniers`
 
 Récupérer tout les paniers
 
-### GET `/api/paniers/{id}`
+### Endpoints Disponibles
 
-Récupérer un panier par son ID.
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/paniers/{id}` | Détails d'un panier |
+| **GET** | `/api/paniers/{id}/lignes` | Lignes d'un panier |
+| **GET** | `/api/paniers/stats` | 📊 Stats paniers (abandon) |
+| **POST** | `/api/paniers` | Créer un panier |
+| **POST** | `/api/paniers/{id}/lignes` | Ajouter article au panier |
+| **PUT** | `/api/paniers/{id}` | Modifier un panier |
+| **PUT** | `/api/paniers/{id}/lignes/{variante_id}` | Modifier quantité |
+| **DELETE** | `/api/paniers/{id}` | Supprimer un panier |
+| **DELETE** | `/api/paniers/{id}/lignes/{variante_id}` | Retirer article |
 
-**Path Parameters:**
+### Ajouter un Article au Panier
 
-- `id`: UUID du panier
-
-**Réponse:** Détails du panier
-
-### POST `/api/paniers`
-
-Créer un nouveau panier.
-
-**Body:**
-
-```json
-{
-  "token": "string",
-  "id_client": "uuid" // optionnel
-}
-```
-
-**Status:** `201 Created`
-
-### PUT `/api/paniers/{id}`
-
-Mettre à jour un panier.
-
-**Path Parameters:**
-
-- `id`: UUID du panier
-
-**Body:** Même structure que POST (tous champs optionnels)
-
-### DELETE `/api/paniers/{id}`
-
-Supprimer un panier.
-
-**Path Parameters:**
-
-- `id`: UUID du panier
-
-**Status:** `204 No Content`
-
----
-
-## Lignes de Panier
-
-### GET `/api/paniers/{id}/lignes`
-
-Liste toutes les lignes d'un panier avec les informations produit.
-
-**Path Parameters:**
-
-- `id`: UUID du panier
-
-**Réponse:** Liste de lignes avec SKU, prix et stock disponible
-
-### POST `/api/paniers/{id}/lignes`
-
-Ajouter ou mettre à jour une ligne dans le panier.
-
-**Path Parameters:**
-
-- `id`: UUID du panier
-
-**Body:**
+**POST** `/api/paniers/{id}/lignes`
 
 ```json
 {
@@ -386,392 +274,179 @@ Ajouter ou mettre à jour une ligne dans le panier.
 }
 ```
 
-**Note:** Si la variante existe déjà, la quantité est incrémentée.
-
-**Status:** `201 Created`
-
-### PUT `/api/paniers/{id}/lignes/{variante_id}`
-
-Mettre à jour la quantité d'une ligne de panier.
-
-**Path Parameters:**
-
-- `id`: UUID du panier
-- `variante_id`: UUID de la variante
-
-**Body:**
-
-```json
-{
-  "quantite": 3
-}
-```
-
-### DELETE `/api/paniers/{id}/lignes/{variante_id}`
-
-Supprimer une ligne du panier.
-
-**Path Parameters:**
-
-- `id`: UUID du panier
-- `variante_id`: UUID de la variante
-
-**Status:** `204 No Content`
-
 ---
 
-## Commandes
+## 📋 Commandes
 
-### GET `/api/commandes`
+### Endpoints Disponibles
 
-Liste toutes les commandes avec informations client.
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/commandes` | Lister toutes les commandes |
+| **GET** | `/api/commandes/{id}` | Détails d'une commande |
+| **GET** | `/api/commandes/stats` | 📊 Stats commandes |
+| **POST** | `/api/commandes` | Créer une commande |
+| **PUT** | `/api/commandes/{id}` | Modifier une commande |
+| **DELETE** | `/api/commandes/{id}` | Supprimer une commande |
 
-**Réponse:** Liste de commandes triées par date de création (DESC)
+### Créer une Commande
 
-### GET `/api/commandes/{id}`
-
-Récupérer une commande spécifique.
-
-**Path Parameters:**
-
-- `id`: UUID de la commande
-
-**Réponse:** Détails de la commande avec nom du client
-
-### POST `/api/commandes`
-
-Créer une nouvelle commande.
-
-**Body:**
+**POST** `/api/commandes`
 
 ```json
 {
-  "ref": "CMD-2025-001",
+  "ref": "CMD-2025-000123",
   "id_client": "uuid",
   "id_adr_fact": "uuid",
   "id_adr_livr": "uuid",
-  "total_ht": 100.00,
-  "total_tva": 20.00,
-  "total_ttc": 120.00,
+  "total_ht": 1666.66,
+  "total_tva": 333.34,
+  "total_ttc": 2000.00,
   "lignes": [
     {
       "id_variante": "uuid",
-      "libelle": "Produit X - Taille M",
-      "quantite": 2,
-      "prix_unitaire_ht": 50.00,
-      "tva": 20.00
+      "libelle": "MacBook Pro 14\" - Gris sidéral",
+      "quantite": 1,
+      "prix_unitaire_ht": 1666.66,
+      "tva": 20.0
     }
   ]
 }
 ```
 
-**Note:** Décrémente automatiquement le stock pour chaque variante commandée.
-
-**Status:** `201 Created`
-
-### PUT `/api/commandes/{id}`
-
-Mettre à jour une commande (statut, adresses).
-
-**Path Parameters:**
-
-- `id`: UUID de la commande
-
-**Body:**
-
-```json
-{
-  "statut": "VALIDEE",
-  "id_adr_fact": "uuid",
-  "id_adr_livr": "uuid"
-}
-```
-
-**Note:** Tous les champs sont optionnels.
-
-### DELETE `/api/commandes/{id}`
-
-Supprimer une commande.
-
-**Path Parameters:**
-
-- `id`: UUID de la commande
-
-**Status:** `204 No Content`
-
 ---
 
-## Paiements
+## 💳 Paiements
 
-### GET `/api/paiements/{id}`
+### Endpoints Disponibles
 
-Récupérer un paiement par son ID.
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/paiements/{id}` | Détails d'un paiement |
+| **GET** | `/api/paiements/commande/{id}` | Paiements d'une commande |
+| **GET** | `/api/paiements/stats` | 📊 Stats paiements |
+| **POST** | `/api/paiements` | Créer un paiement |
+| **PUT** | `/api/paiements/{id}` | Modifier un paiement |
+| **DELETE** | `/api/paiements/{id}` | Supprimer un paiement |
 
-**Path Parameters:**
+### Créer un Paiement
 
-- `id`: UUID du paiement
-
-**Réponse:** Détails du paiement
-
-### GET `/api/paiements/commande/{id_commande}`
-
-Liste tous les paiements associés à une commande.
-
-**Path Parameters:**
-
-- `id_commande`: UUID de la commande
-
-**Réponse:** Liste de paiements triés par date de création (DESC)
-
-### POST `/api/paiements`
-
-Créer un nouveau paiement.
-
-**Body:**
+**POST** `/api/paiements`
 
 ```json
 {
   "id_commande": "uuid",
-  "mode": "CB",
-  "montant": 120.00,
+  "mode": "carte",
+  "montant": 2000.00,
   "statut": "CREATED",
-  "transaction_id": "TXN_12345"
+  "transaction_id": "stripe_ch_123456"
 }
 ```
 
-**Status:** `201 Created`
-
-### PUT `/api/paiements/{id}`
-
-Mettre à jour un paiement (généralement le statut).
-
-**Path Parameters:**
-
-- `id`: UUID du paiement
-
-**Body:**
-
-```json
-{
-  "statut": "SUCCESS",
-  "transaction_id": "TXN_12345_CONFIRMED"
-}
-```
-
-**Note:** Tous les champs sont optionnels.
-
-### DELETE `/api/paiements/{id}`
-
-Supprimer un paiement.
-
-**Path Parameters:**
-
-- `id`: UUID du paiement
-
-**Status:** `204 No Content`
+**Statuts possibles :** `CREATED` | `AUTHORIZED` | `CAPTURED` | `FAILED` | `REFUNDED`
 
 ---
 
-## Livraisons
+## 🚚 Livraisons
 
-### GET `/api/livraisons/{id}`
+### Endpoints Disponibles
 
-Récupérer une livraison par son ID.
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/livraisons/{id}` | Détails d'une livraison |
+| **GET** | `/api/livraisons/commande/{id}` | Livraison d'une commande |
+| **POST** | `/api/livraisons` | Créer une livraison |
+| **PUT** | `/api/livraisons/{id}` | Modifier une livraison |
+| **DELETE** | `/api/livraisons/{id}` | Supprimer une livraison |
 
-**Path Parameters:**
+### Créer une Livraison
 
-- `id`: UUID de la livraison
-
-**Réponse:** Détails de la livraison
-
-### GET `/api/livraisons/commande/{id_commande}`
-
-Récupérer la livraison associée à une commande.
-
-**Path Parameters:**
-
-- `id_commande`: UUID de la commande
-
-**Réponse:** Livraison ou null si non trouvée
-
-### POST `/api/livraisons`
-
-Créer une nouvelle livraison.
-
-**Body:**
+**POST** `/api/livraisons`
 
 ```json
 {
   "id_commande": "uuid",
   "transporteur": "Colissimo",
-  "num_suivi": "1234567890",
+  "num_suivi": "6A12345678910",
   "statut": "EN_PREPARATION",
-  "cout_ht": 5.50
+  "cout_ht": 5.00
 }
 ```
 
-**Status:** `201 Created`
-
-### PUT `/api/livraisons/{id}`
-
-Mettre à jour une livraison (statut, numéro de suivi).
-
-**Path Parameters:**
-
-- `id`: UUID de la livraison
-
-**Body:**
-
-```json
-{
-  "transporteur": "Colissimo",
-  "num_suivi": "1234567890",
-  "statut": "EXPEDIE",
-  "cout_ht": 5.50
-}
-```
-
-**Note:** Tous les champs sont optionnels.
-
-### DELETE `/api/livraisons/{id}`
-
-Supprimer une livraison.
-
-**Path Parameters:**
-
-- `id`: UUID de la livraison
-
-**Status:** `204 No Content`
+**Statuts possibles :** `EN_PREPARATION` | `EXPEDIEE` | `EN_TRANSIT` | `LIVREE` | `RETARD`
 
 ---
 
-## Promotions
+## 🎁 Promotions
 
-### GET `/api/promotions`
+### Endpoints Disponibles
 
-Liste toutes les promotions actives.
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/promotions` | Promotions actives |
+| **GET** | `/api/promotions/stats` | 📊 Stats promotions |
+| **POST** | `/api/promotions` | Créer une promotion |
+| **POST** | `/api/promotions/attach` | Attacher à un produit |
 
-**Réponse:** Liste de promotions actives triées par date de début (DESC)
+### Créer une Promotion
 
-### POST `/api/promotions`
-
-Créer une nouvelle promotion.
-
-**Body:**
+**POST** `/api/promotions`
 
 ```json
 {
-  "libelle": "Soldes d'été",
-  "type": "PERCENTAGE",
+  "libelle": "Black Friday",
+  "type": "PERCENT",
   "valeur": 20.0,
-  "date_debut": "2025-07-01",
-  "date_fin": "2025-07-31",
+  "date_debut": "2025-11-20T00:00:00Z",
+  "date_fin": "2025-11-30T23:59:59Z",
   "actif": true
 }
 ```
 
-**Status:** `201 Created`
-
-### POST `/api/promotions/attach`
-
-Attacher une promotion à un produit.
-
-**Body:**
-
-```json
-{
-  "id_produit": "uuid",
-  "id_promo": "uuid"
-}
-```
-
-**Status:** `204 No Content`
+**Types :** `PERCENT` (pourcentage) | `AMOUNT` (montant fixe)
 
 ---
 
-## Avis (MongoDB)
+## ⭐ Avis (MongoDB)
 
-### GET `/api/avis/{id_produit}`
+### Endpoints Disponibles
 
-Liste tous les avis pour un produit.
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/avis` | Tous les avis |
+| **GET** | `/api/avis/{id_produit}` | Avis d'un produit |
+| **GET** | `/api/avis/stats` | 📊 Stats avis (agrégations) |
+| **POST** | `/api/avis` | Créer un avis |
 
-**Path Parameters:**
+### Créer un Avis
 
-- `id_produit`: ID du produit
-
-**Réponse:** Liste d'avis triés par date (DESC)
-
-**Exemple de réponse:**
-
-```json
-[
-  {
-    "_id": "ObjectId",
-    "id_produit": 123,
-    "auteur": {
-      "nom": "Jean Dupont",
-      "email": "jean@example.com"
-    },
-    "note": 5,
-    "commentaire": "Excellent produit !",
-    "date": "2025-10-29T12:00:00Z"
-  }
-]
-```
-
-### POST `/api/avis`
-
-Créer un nouvel avis.
-
-**Body:**
+**POST** `/api/avis`
 
 ```json
 {
-  "id_produit": 123,
-  "auteur": {
-    "nom": "Jean Dupont",
-    "email": "jean@example.com"
-  },
-  "note": 5,
-  "commentaire": "Excellent produit !"
+  "id_produit": "product-123",
+  "auteur": "Sophie Martin",
+  "commentaire": "Excellent produit, très satisfaite !",
+  "note": 5
 }
 ```
 
-**Status:** `201 Created`
-
 ---
 
-## Logs (MongoDB)
+## 📝 Logs (MongoDB)
 
-### GET `/api/logs/{id_client}`
+### Endpoints Disponibles
 
-Récupère les logs d'activité d'un client.
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **GET** | `/api/logs` | Tous les logs (1000 derniers) |
+| **GET** | `/api/logs/client/{id}` | Logs d'un client |
+| **GET** | `/api/logs/stats` | 📊 Stats logs (agrégations) |
+| **POST** | `/api/logs` | Créer un log |
 
-**Path Parameters:**
+### Créer un Log
 
-- `id_client`: ID du client
-
-**Réponse:** Liste des 200 derniers logs triés par timestamp (DESC)
-
-**Exemple de réponse:**
-
-```json
-[
-  {
-    "_id": "ObjectId",
-    "id_client": 123,
-    "action": "view_product",
-    "id_produit": 456,
-    "timestamp": "2025-10-29T12:00:00Z"
-  }
-]
-```
-
-### POST `/api/logs`
-
-Créer un nouveau log d'activité.
-
-**Body:**
+**POST** `/api/logs`
 
 ```json
 {
@@ -781,32 +456,426 @@ Créer un nouveau log d'activité.
 }
 ```
 
-**Status:** `201 Created`
+---
+
+# 📊 Statistiques & Agrégations
+
+> Endpoints avancés avec agrégations MongoDB et PostgreSQL
 
 ---
 
-## État du CRUD par Entité
+## 🌐 Stats Globales
 
-| Entité | Create | Read | Update | Delete | Statut |
-|--------|--------|------|--------|--------|--------|
-| **Produits** | ✅ | ✅ | ✅ | ✅ | **CRUD Complet** |
-| **Variantes** | ✅ | ✅ | ✅ | ❌ | CRUD partiel |
-| **Stock** | ✅ | ✅ | ✅ (PATCH) | ❌ | CRUD partiel |
-| **Catégories** | ✅ | ✅ | ✅ | ✅ | **CRUD Complet** |
-| **Clients** | ✅ | ✅ | ✅ | ✅ | **CRUD Complet** |
-| **Adresses** | ✅ | ✅ | ✅ | ✅ | **CRUD Complet** |
-| **Paniers** | ✅ | ✅ | ✅ | ✅ | **CRUD Complet** |
-| **Lignes Panier** | ✅ | ✅ | ✅ | ✅ | **CRUD Complet** |
-| **Commandes** | ✅ | ✅ | ✅ | ✅ | **CRUD Complet** |
-| **Paiements** | ✅ | ✅ | ✅ | ✅ | **CRUD Complet** |
-| **Livraisons** | ✅ | ✅ | ✅ | ✅ | **CRUD Complet** |
-| **Promotions** | ✅ | ✅ | ❌ | ❌ | CRUD partiel |
-| **Avis** | ✅ | ✅ | ❌ | ❌ | CRUD partiel (MongoDB) |
-| **Logs** | ✅ | ✅ | ❌ | ❌ | CRUD partiel (MongoDB) |
+### Vue d'Ensemble de la Plateforme
+
+| Méthode | Endpoint | Description | Base de Données |
+|---------|----------|-------------|-----------------|
+| **GET** | `/api/stats/global` | Stats complètes | PostgreSQL + MongoDB |
+| **GET** | `/api/stats/dashboard` | KPIs principaux | PostgreSQL |
+
+### GET `/api/stats/global`
+
+**Vue d'ensemble hybride (PostgreSQL + MongoDB)**
+
+**Réponse :**
+
+```json
+{
+  "ventes": {
+    "total_ventes": 5915.88,
+    "total_commandes": 5,
+    "commandes_validees": 4,
+    "panier_moyen": 1183.18,
+    "taux_conversion": 80.0
+  },
+  "clients": {
+    "total_clients": 5
+  },
+  "catalogue": {
+    "total_produits": 9,
+    "total_variantes": 22,
+    "total_stock": 1292
+  },
+  "avis": {
+    "total_avis": 6,
+    "note_moyenne": 4.67
+  },
+  "activite": {
+    "total_logs": 15
+  },
+  "revenus_par_mois": [
+    {
+      "mois": "2025-10",
+      "nb_commandes": 35,
+      "total_ventes": 3456.78
+    }
+  ],
+  "top_produits": [
+    {
+      "nom": "MacBook Pro 14\"",
+      "quantite_vendue": 15,
+      "ca_genere": 29999.85
+    }
+  ]
+}
+```
+
+### GET `/api/stats/dashboard`
+
+**KPIs pour le tableau de bord**
+
+**Réponse :**
+
+```json
+{
+  "aujourdhui": {
+    "commandes": 5,
+    "ventes": 425.50,
+    "croissance_vs_hier": 12.5
+  },
+  "ce_mois": {
+    "commandes": 75,
+    "ventes": 6789.00
+  },
+  "clients_actifs_30j": 23
+}
+```
 
 ---
 
-## Notes Techniques
+## 📊 Stats par Entité
+
+### Stats Avis
+
+**GET** `/api/avis/stats`
+
+**Agrégations MongoDB utilisées :**
+
+- `$avg` : Note moyenne
+- `$match` : Filtrage par période
+- `$group` : Répartition par note
+- `$facet` : Exécution parallèle
+
+**Réponse :**
+
+```json
+{
+  "note_moyenne": 4.67,
+  "total_avis": 6,
+  "avis_ce_mois": 0,
+  "repartition_notes": {
+    "5_etoiles": 4,
+    "4_etoiles": 2,
+    "3_etoiles": 0,
+    "2_etoiles": 0,
+    "1_etoiles": 0
+  }
+}
+```
+
+---
+
+### Stats Logs
+
+**GET** `/api/logs/stats`
+
+**Agrégations MongoDB utilisées :**
+
+- `$count` : Comptage total
+- `$group` : Regroupement par action/type
+- `$sort` : Tri par fréquence
+- `$limit` : Limitation des résultats
+
+**Réponse :**
+
+```json
+{
+  "total_logs": 15,
+  "actions_frequentes": [
+    {
+      "action": "LOGIN",
+      "count": 5,
+      "pourcentage": 33.33
+    },
+    {
+      "action": "ADD_TO_CART",
+      "count": 4,
+      "pourcentage": 26.67
+    }
+  ],
+  "types_frequents": [
+    {
+      "type": "AUTH",
+      "count": 5,
+      "pourcentage": 33.33
+    }
+  ]
+}
+```
+
+---
+
+### Stats Promotions
+
+**GET** `/api/promotions/stats`
+
+**Techniques SQL PostgreSQL :**
+
+- `COUNT(*) FILTER (WHERE ...)`
+- `AVG(CASE WHEN ... THEN ... END)`
+- Filtrage temporel avec `NOW()`
+
+**Réponse :**
+
+```json
+{
+  "promotions_actives": [
+    {
+      "id": "uuid",
+      "libelle": "Soldes d'été",
+      "type": "PERCENT",
+      "valeur": 15.0,
+      "date_debut": "2024-06-01T00:00:00Z",
+      "date_fin": "2024-08-31T23:59:59Z"
+    }
+  ],
+  "nombre_actives": 2,
+  "total_promotions": 4,
+  "reduction_moyenne_pourcentage": 12.5,
+  "reduction_moyenne_montant": 0
+}
+```
+
+---
+
+### Stats Paiements
+
+**GET** `/api/paiements/stats`
+
+**Techniques SQL PostgreSQL :**
+
+- `SUM()`, `AVG()` : Agrégations
+- `COUNT(*) FILTER (WHERE ...)` : Comptages par statut
+- `GROUP BY` + calcul de pourcentages
+
+**Réponse :**
+
+```json
+{
+  "montant_total": 5915.88,
+  "montant_moyen": 1183.18,
+  "total_paiements": 5,
+  "nombre_reussis": 4,
+  "nombre_echoues": 0,
+  "nombre_rembourses": 0,
+  "taux_reussite": 80.0,
+  "repartition_par_mode": [
+    {
+      "mode": "carte",
+      "count": 4,
+      "pourcentage": 80.0
+    },
+    {
+      "mode": "paypal",
+      "count": 1,
+      "pourcentage": 20.0
+    }
+  ],
+  "repartition_par_statut": [
+    {
+      "statut": "CAPTURED",
+      "count": 4,
+      "pourcentage": 80.0
+    }
+  ]
+}
+```
+
+---
+
+### Stats Commandes
+
+**GET** `/api/commandes/stats`
+
+**Techniques SQL PostgreSQL :**
+
+- Agrégations multiples : `COUNT()`, `SUM()`, `AVG()`
+- `DATE()` + `INTERVAL` : Manipulation de dates
+- `GROUP BY DATE()` : Regroupement par jour
+
+**Réponse :**
+
+```json
+{
+  "total_commandes": 5,
+  "nombre_validees": 4,
+  "nombre_en_attente": 1,
+  "nombre_annulees": 0,
+  "montant_total": 5915.88,
+  "montant_moyen": 1183.18,
+  "taux_validation": 80.0,
+  "repartition_par_statut": [
+    {
+      "statut": "LIVREE",
+      "count": 1,
+      "pourcentage": 20.0
+    },
+    {
+      "statut": "EXPEDIEE",
+      "count": 1,
+      "pourcentage": 20.0
+    }
+  ],
+  "volume_par_jour": [
+    {
+      "date": "2024-06-01",
+      "nombre_commandes": 1,
+      "total_ventes": 227.97
+    }
+  ]
+}
+```
+
+---
+
+### Stats Paniers
+
+**GET** `/api/paniers/stats`
+
+**Critère d'abandon :** Panier non modifié depuis plus de 7 jours
+
+**Techniques SQL PostgreSQL :**
+
+- `LEFT JOIN` avec sous-requête
+- `EXTRACT(DAY FROM ...)` : Calcul de différence en jours
+- `INTERVAL '7 days'` : Critère d'abandon
+
+**Réponse :**
+
+```json
+{
+  "total_paniers": 3,
+  "paniers_abandonnes": 3,
+  "paniers_actifs": 0,
+  "taux_abandon": 100.0,
+  "montant_moyen": 868.3,
+  "details_paniers_abandonnes": [
+    {
+      "id": "uuid",
+      "created_at": "2024-06-03T16:00:00Z",
+      "updated_at": "2024-06-03T16:30:00Z",
+      "jours_depuis_maj": 148,
+      "montant_estime": 125.50
+    }
+  ]
+}
+```
+
+---
+
+### Stats Clients
+
+**GET** `/api/clients/stats`
+
+**Techniques SQL PostgreSQL :**
+
+- `DATE_TRUNC('month', NOW())` : Début du mois courant
+- Sous-requêtes pour calcul de moyennes
+- `ORDER BY` multiple pour classement
+
+**Réponse :**
+
+```json
+{
+  "total_clients": 5,
+  "nouveaux_ce_mois": 0,
+  "nombre_moyen_adresses": 1.2,
+  "top_clients": [
+    {
+      "id": "uuid",
+      "prenom": "Sophie",
+      "nom": "Martin",
+      "email": "sophie.martin@example.com",
+      "nb_commandes": 1,
+      "total_depense": 2627.97
+    }
+  ],
+  "nouveaux_clients": []
+}
+```
+
+---
+
+## 🧪 Tests Rapides
+
+### Tester Tous les Endpoints de Stats
+
+```bash
+# Stats globales
+curl http://localhost:8000/api/stats/global
+curl http://localhost:8000/api/stats/dashboard
+
+# Stats par entité
+curl http://localhost:8000/api/avis/stats
+curl http://localhost:8000/api/logs/stats
+curl http://localhost:8000/api/promotions/stats
+curl http://localhost:8000/api/paiements/stats
+curl http://localhost:8000/api/commandes/stats
+curl http://localhost:8000/api/paniers/stats
+curl http://localhost:8000/api/clients/stats
+```
+
+---
+
+## 📊 État du CRUD
+
+| Entité | Create | Read | Update | Delete | Stats | Statut |
+|--------|:------:|:----:|:------:|:------:|:-----:|--------|
+| **Produits** | ✅ | ✅ | ✅ | ✅ | ➖ | CRUD Complet |
+| **Variantes** | ✅ | ✅ | ✅ | ➖ | ➖ | CRUD Partiel |
+| **Stock** | ✅ | ✅ | ✅ | ➖ | ➖ | CRUD Partiel |
+| **Catégories** | ✅ | ✅ | ✅ | ✅ | ➖ | CRUD Complet |
+| **Clients** | ✅ | ✅ | ✅ | ✅ | ✅ | **CRUD + Stats** |
+| **Adresses** | ✅ | ✅ | ✅ | ✅ | ➖ | CRUD Complet |
+| **Paniers** | ✅ | ✅ | ✅ | ✅ | ✅ | **CRUD + Stats** |
+| **Commandes** | ✅ | ✅ | ✅ | ✅ | ✅ | **CRUD + Stats** |
+| **Paiements** | ✅ | ✅ | ✅ | ✅ | ✅ | **CRUD + Stats** |
+| **Livraisons** | ✅ | ✅ | ✅ | ✅ | ➖ | CRUD Complet |
+| **Promotions** | ✅ | ✅ | ➖ | ➖ | ✅ | **CRUD + Stats** |
+| **Avis** (MongoDB) | ✅ | ✅ | ➖ | ➖ | ✅ | **Read + Stats** |
+| **Logs** (MongoDB) | ✅ | ✅ | ➖ | ➖ | ✅ | **Read + Stats** |
+
+---
+
+## 🎓 Avantages Pédagogiques
+
+### Agrégations MongoDB
+
+- ✅ Pipeline d'agrégation avec `$facet`
+- ✅ Calculs statistiques avec `$avg`, `$sum`
+- ✅ Filtrage temporel avec `$match`
+- ✅ Regroupement avec `$group`
+- ✅ Tri et limitation
+
+### Agrégations PostgreSQL
+
+- ✅ Fonctions d'agrégation avancées
+- ✅ Comptage conditionnel : `COUNT(*) FILTER (WHERE ...)`
+- ✅ Calculs de pourcentages
+- ✅ Intervalles temporels
+- ✅ Sous-requêtes corrélées
+- ✅ Fonctions temporelles : `DATE_TRUNC`, `EXTRACT`
+
+### Architecture Hybride
+
+- ✅ Requêtes combinant PostgreSQL et MongoDB
+- ✅ Démonstration des forces de chaque base :
+  - **PostgreSQL** : Transactions, agrégations complexes, jointures
+  - **MongoDB** : Flexibilité, documents riches, agrégations pipeline
+
+---
+
+## 📝 Notes Techniques
 
 ### Format des Réponses d'Erreur
 
@@ -816,20 +885,40 @@ Créer un nouveau log d'activité.
 }
 ```
 
-### Codes de Statut Courants
+### Codes de Statut HTTP
 
-- `200 OK`: Requête réussie
-- `201 Created`: Ressource créée avec succès
-- `204 No Content`: Opération réussie sans contenu de retour
-- `404 Not Found`: Ressource introuvable
-- `422 Unprocessable Entity`: Erreur de validation
+| Code | Signification |
+|------|---------------|
+| **200** | OK - Requête réussie |
+| **201** | Created - Ressource créée |
+| **204** | No Content - Opération réussie sans contenu |
+| **404** | Not Found - Ressource introuvable |
+| **422** | Unprocessable Entity - Erreur de validation |
 
 ### Authentification
 
-⚠️ L'API n'implémente actuellement pas de système d'authentification. À implémenter pour la production.
-
-### Base URL
-
-Développement : `http://localhost:8000`
+⚠️ L'API n'implémente actuellement pas de système d'authentification.  
+À implémenter pour la production (JWT, OAuth2, etc.)
 
 ---
+
+## 🚀 Points Forts de l'Implémentation
+
+1. **Agrégations avancées** : Utilisation de `$facet` pour exécuter plusieurs agrégations en parallèle
+2. **Calculs de pourcentages** : Répartition par statut, mode, etc.
+3. **Filtrage temporel** : Données du mois, 30 derniers jours, etc.
+4. **Métriques business** : Taux de conversion, taux d'abandon, taux de réussite
+5. **Performances** : Toutes les agrégations sont faites côté base de données
+6. **Documentation complète** : Exemples, résultats attendus, techniques utilisées
+
+---
+
+## 📚 Documentation Complémentaire
+
+- **[TESTS_CRUD.md](TESTS_CRUD.md)** : Exemples de tests pour tous les endpoints
+- **[INITIALISATION.md](INITIALISATION.md)** : Guide Docker et troubleshooting
+- **[RENDU.md](RENDU.md)** : Explications pédagogiques et architecture
+
+---
+
+**✨ API ShopEase - Documentation Complète**
