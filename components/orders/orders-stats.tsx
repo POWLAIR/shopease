@@ -3,17 +3,21 @@ import { ShoppingBag, CheckCircle, XCircle, Clock } from "lucide-react"
 
 async function getOrdersStats() {
   try {
-    const res = await fetch("http://localhost:8000/api/commandes", { cache: "no-store" })
-    const orders = res.ok ? await res.json() : []
+    const res = await fetch("http://localhost:8000/api/commandes/stats", { cache: "no-store" })
+    const data = res.ok ? await res.json() : null
 
-    const totalOrders = orders.length
-    const validated = orders.filter((o: any) => o.statut === "VALIDEE").length
-    const cancelled = orders.filter((o: any) => o.statut === "ANNULEE").length
-    const pending = orders.filter((o: any) => o.statut === "EN_ATTENTE").length
+    if (!data) {
+      return { total_commandes: 0, nombre_validees: 0, nombre_en_attente: 0, nombre_annulees: 0 }
+    }
 
-    return { totalOrders, validated, cancelled, pending }
+    const total_commandes = Number(data.total_commandes) || 0
+    const nombre_validees = Number(data.nombre_validees) || 0
+    const nombre_en_attente = Number(data.nombre_en_attente) || 0
+    const nombre_annulees = Number(data.nombre_annulees) || 0
+
+    return { total_commandes, nombre_validees, nombre_en_attente, nombre_annulees }
   } catch (error) {
-    return { totalOrders: 0, validated: 0, cancelled: 0, pending: 0 }
+    return { total_commandes: 0, nombre_validees: 0, nombre_en_attente: 0, nombre_annulees: 0 }
   }
 }
 
@@ -28,7 +32,7 @@ export async function OrdersStats() {
           <ShoppingBag className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.totalOrders}</div>
+          <div className="text-2xl font-bold">{stats.total_commandes}</div>
           <p className="text-xs text-muted-foreground">Toutes les commandes</p>
         </CardContent>
       </Card>
@@ -39,7 +43,7 @@ export async function OrdersStats() {
           <CheckCircle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.validated}</div>
+          <div className="text-2xl font-bold">{stats.nombre_validees}</div>
           <p className="text-xs text-muted-foreground">Commandes validées</p>
         </CardContent>
       </Card>
@@ -50,7 +54,7 @@ export async function OrdersStats() {
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.pending}</div>
+          <div className="text-2xl font-bold">{stats.nombre_en_attente}</div>
           <p className="text-xs text-muted-foreground">À traiter</p>
         </CardContent>
       </Card>
@@ -61,7 +65,7 @@ export async function OrdersStats() {
           <XCircle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.cancelled}</div>
+          <div className="text-2xl font-bold">{stats.nombre_annulees}</div>
           <p className="text-xs text-muted-foreground">Commandes annulées</p>
         </CardContent>
       </Card>

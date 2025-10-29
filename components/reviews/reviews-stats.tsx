@@ -3,17 +3,30 @@ import { Star, MessageSquare, TrendingUp } from "lucide-react"
 
 async function getReviewsStats() {
   try {
-    // Mock data - would need to aggregate from MongoDB
-    return {
-      totalReviews: 127,
-      avgRating: 4.3,
-      recentReviews: 15,
+    const res = await fetch("http://localhost:8000/api/avis/stats", { cache: "no-store" })
+    const data = res.ok ? await res.json() : null
+
+    if (!data) {
+      return {
+        note_moyenne: 0,
+        total_avis: 0,
+        avis_ce_mois: 0,
+        repartition_notes: {},
+      }
     }
+
+    const note_moyenne = Number(data.note_moyenne) || 0
+    const total_avis = Number(data.total_avis) || 0
+    const avis_ce_mois = Number(data.avis_ce_mois) || 0
+    const repartition_notes = data.repartition_notes && typeof data.repartition_notes === "object" ? data.repartition_notes : {}
+
+    return { note_moyenne, total_avis, avis_ce_mois, repartition_notes }
   } catch (error) {
     return {
-      totalReviews: 0,
-      avgRating: 0,
-      recentReviews: 0,
+      note_moyenne: 0,
+      total_avis: 0,
+      avis_ce_mois: 0,
+      repartition_notes: {},
     }
   }
 }
@@ -29,7 +42,7 @@ export async function ReviewsStats() {
           <MessageSquare className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.totalReviews}</div>
+          <div className="text-2xl font-bold">{stats.total_avis}</div>
           <p className="text-xs text-muted-foreground">Tous les avis</p>
         </CardContent>
       </Card>
@@ -40,7 +53,7 @@ export async function ReviewsStats() {
           <Star className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.avgRating.toFixed(1)} / 5</div>
+          <div className="text-2xl font-bold">{stats.note_moyenne.toFixed(2)} / 5</div>
           <p className="text-xs text-muted-foreground">Satisfaction globale</p>
         </CardContent>
       </Card>
@@ -51,7 +64,7 @@ export async function ReviewsStats() {
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.recentReviews}</div>
+          <div className="text-2xl font-bold">{stats.avis_ce_mois}</div>
           <p className="text-xs text-muted-foreground">Ce mois-ci</p>
         </CardContent>
       </Card>

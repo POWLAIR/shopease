@@ -2,16 +2,56 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
+import { useEffect, useState } from "react"
 
-const statusData = [
-  { name: "En préparation", value: 19 },
-  { name: "Expédiées", value: 60 },
-  { name: "Livrées", value: 21 },
-]
+async function getDeliveriesStats() {
+  try {
+    const res = await fetch("http://localhost:8000/api/livraisons/stats", { cache: "no-store" })
+    const data = res.ok ? await res.json() : null
+
+    if (!data) {
+      return { repartition_par_statut: [] }
+    }
+
+    const repartition_par_statut = Array.isArray(data.repartition_par_statut)
+      ? data.repartition_par_statut.map((r: any) => ({
+        statut: r.statut,
+        count: Number(r.count) || 0,
+        pourcentage: Number(r.pourcentage) || 0,
+      }))
+      : []
+
+    return { repartition_par_statut }
+  } catch (error) {
+    return { repartition_par_statut: [] }
+  }
+}
 
 const COLORS = ["hsl(var(--chart-2))", "hsl(var(--chart-1))", "hsl(var(--chart-3))"]
 
 export function DeliveriesChart() {
+  const [statusData, setStatusData] = useState<Array<any>>([])
+
+  useEffect(() => {
+    let mounted = true
+    async function load() {
+      const stats = await getDeliveriesStats()
+      if (!mounted) return
+
+      const sd = (stats.repartition_par_statut || []).map((r: any) => ({
+        name: r.statut,
+        value: Number(r.count) || 0,
+      }))
+
+      setStatusData(sd)
+    }
+
+    load()
+    return () => {
+      mounted = false
+    }
+  }, [])
+
   return (
     <Card>
       <CardHeader>

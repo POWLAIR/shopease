@@ -3,17 +3,36 @@ import { Activity, Users, TrendingUp } from "lucide-react"
 
 async function getLogsStats() {
   try {
-    // Mock data - would need to aggregate from MongoDB
-    return {
-      totalActions: 1542,
-      activeUsers: 87,
-      peakHour: "14h-15h",
+    const res = await fetch("http://localhost:8000/api/logs/stats", { cache: "no-store" })
+    const data = res.ok ? await res.json() : null
+
+    if (!data) {
+      return {
+        total_logs: 0,
+        actions_frequentes: [],
+        types_frequents: [],
+      }
     }
+
+    const total_logs = Number(data.total_logs) || 0
+    const actions_frequentes = Array.isArray(data.actions_frequentes) ? data.actions_frequentes.map((a: any) => ({
+      action: a.action,
+      count: Number(a.count) || 0,
+      pourcentage: Number(a.pourcentage) || 0,
+    })) : []
+
+    const types_frequents = Array.isArray(data.types_frequents) ? data.types_frequents.map((t: any) => ({
+      type: t.type,
+      count: Number(t.count) || 0,
+      pourcentage: Number(t.pourcentage) || 0,
+    })) : []
+
+    return { total_logs, actions_frequentes, types_frequents }
   } catch (error) {
     return {
-      totalActions: 0,
-      activeUsers: 0,
-      peakHour: "N/A",
+      total_logs: 0,
+      actions_frequentes: [],
+      types_frequents: [],
     }
   }
 }
@@ -29,7 +48,7 @@ export async function LogsStats() {
           <Activity className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.totalActions}</div>
+          <div className="text-2xl font-bold">{stats.total_logs}</div>
           <p className="text-xs text-muted-foreground">Actions enregistrées</p>
         </CardContent>
       </Card>
@@ -40,8 +59,8 @@ export async function LogsStats() {
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.activeUsers}</div>
-          <p className="text-xs text-muted-foreground">Utilisateurs uniques</p>
+          <div className="text-2xl font-bold">{stats.actions_frequentes.length}</div>
+          <p className="text-xs text-muted-foreground">Actions fréquentes</p>
         </CardContent>
       </Card>
 
@@ -51,8 +70,8 @@ export async function LogsStats() {
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.peakHour}</div>
-          <p className="text-xs text-muted-foreground">Plus forte activité</p>
+          <div className="text-2xl font-bold">{stats.actions_frequentes[0]?.action ?? "N/A"}</div>
+          <p className="text-xs text-muted-foreground">Action la plus fréquente</p>
         </CardContent>
       </Card>
     </div>

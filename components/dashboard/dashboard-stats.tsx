@@ -3,25 +3,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 async function getDashboardStats() {
   try {
-    const [ordersRes, clientsRes, productsRes] = await Promise.all([
-      fetch("http://localhost:8000/api/commandes", { cache: "no-store" }),
-      fetch("http://localhost:8000/api/clients", { cache: "no-store" }),
-      fetch("http://localhost:8000/api/produits", { cache: "no-store" }),
-    ])
+    const res = await fetch("http://localhost:8000/api/stats/global", { cache: "no-store" })
+    const data = res.ok ? await res.json() : null
 
-    const orders = ordersRes.ok ? await ordersRes.json() : []
-    const clients = clientsRes.ok ? await clientsRes.json() : []
-    const products = productsRes.ok ? await productsRes.json() : []
-
-    const totalRevenue = orders.reduce((sum: number, order: any) => sum + (order.total_ttc || 0), 0)
-    const averageCart = orders.length > 0 ? totalRevenue / orders.length : 0
+    if (!data) {
+      return {
+        totalRevenue: 0,
+        totalOrders: 0,
+        averageCart: 0,
+        totalClients: 0,
+        totalProducts: 0,
+      }
+    }
 
     return {
-      totalRevenue,
-      totalOrders: orders.length,
-      averageCart,
-      totalClients: clients.length,
-      totalProducts: products.length,
+      totalRevenue: Number(data.total_ventes) || 0,
+      totalOrders: Number(data.total_commandes) || 0,
+      averageCart: Number(data.panier_moyen) || 0,
+      totalClients: Number(data.nombre_clients) || 0,
+      totalProducts: Number(data.nombre_produits) || 0,
     }
   } catch (error) {
     return {

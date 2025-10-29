@@ -3,19 +3,49 @@ import { Truck, Package, CheckCircle, Clock } from "lucide-react"
 
 async function getDeliveriesStats() {
   try {
-    // Mock data - API doesn't have global deliveries endpoint
-    return {
-      total: 42,
-      inPreparation: 8,
-      shipped: 25,
-      delivered: 9,
+    const res = await fetch("http://localhost:8000/api/livraisons/stats", { cache: "no-store" })
+    const data = res.ok ? await res.json() : null
+
+    if (!data) {
+      return {
+        total_livraisons: 0,
+        nombre_en_preparation: 0,
+        nombre_expediees: 0,
+        nombre_livrees: 0,
+        repartition_par_statut: [],
+        volume_par_jour: [],
+      }
     }
+
+    const total_livraisons = Number(data.total_livraisons) || 0
+    const nombre_en_preparation = Number(data.nombre_en_preparation) || 0
+    const nombre_expediees = Number(data.nombre_expediees) || 0
+    const nombre_livrees = Number(data.nombre_livrees) || 0
+
+    const repartition_par_statut = Array.isArray(data.repartition_par_statut)
+      ? data.repartition_par_statut.map((r: any) => ({
+        statut: r.statut,
+        count: Number(r.count) || 0,
+        pourcentage: Number(r.pourcentage) || 0,
+      }))
+      : []
+
+    const volume_par_jour = Array.isArray(data.volume_par_jour)
+      ? data.volume_par_jour.map((v: any) => ({
+        date: v.date,
+        nombre_livraisons: Number(v.nombre_livraisons) || 0,
+      }))
+      : []
+
+    return { total_livraisons, nombre_en_preparation, nombre_expediees, nombre_livrees, repartition_par_statut, volume_par_jour }
   } catch (error) {
     return {
-      total: 0,
-      inPreparation: 0,
-      shipped: 0,
-      delivered: 0,
+      total_livraisons: 0,
+      nombre_en_preparation: 0,
+      nombre_expediees: 0,
+      nombre_livrees: 0,
+      repartition_par_statut: [],
+      volume_par_jour: [],
     }
   }
 }
@@ -31,7 +61,7 @@ export async function DeliveriesStats() {
           <Truck className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.total}</div>
+          <div className="text-2xl font-bold">{stats.total_livraisons}</div>
           <p className="text-xs text-muted-foreground">Toutes les livraisons</p>
         </CardContent>
       </Card>
@@ -42,7 +72,7 @@ export async function DeliveriesStats() {
           <Package className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.inPreparation}</div>
+          <div className="text-2xl font-bold">{stats.nombre_en_preparation}</div>
           <p className="text-xs text-muted-foreground">À préparer</p>
         </CardContent>
       </Card>
@@ -53,7 +83,7 @@ export async function DeliveriesStats() {
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.shipped}</div>
+          <div className="text-2xl font-bold">{stats.nombre_expediees}</div>
           <p className="text-xs text-muted-foreground">En transit</p>
         </CardContent>
       </Card>
@@ -64,7 +94,7 @@ export async function DeliveriesStats() {
           <CheckCircle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.delivered}</div>
+          <div className="text-2xl font-bold">{stats.nombre_livrees}</div>
           <p className="text-xs text-muted-foreground">Terminées</p>
         </CardContent>
       </Card>

@@ -3,13 +3,16 @@ import { ShoppingCart, TrendingDown, DollarSign } from "lucide-react"
 
 async function getCartsStats() {
   try {
-    const res = await fetch("http://localhost:8000/api/paniers", { cache: "no-store" })
-    const carts = res.ok ? await res.json() : []
+    const res = await fetch("http://localhost:8000/api/paniers/stats", { cache: "no-store" })
+    const data = res.ok ? await res.json() : null
 
-    // Mock calculations
-    const totalCarts = carts.length
-    const abandonRate = 35 // Mock value
-    const avgAmount = 85.5 // Mock value
+    if (!data) {
+      return { totalCarts: 0, abandonRate: 0, avgAmount: 0 }
+    }
+
+    const totalCarts = Number(data.total_paniers) || 0
+    const abandonRate = Number(data.taux_abandon) || 0
+    const avgAmount = Number(data.montant_moyen) || 0
 
     return { totalCarts, abandonRate, avgAmount }
   } catch (error) {

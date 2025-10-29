@@ -3,19 +3,27 @@ import { Tag, TrendingUp, Percent } from "lucide-react"
 
 async function getPromotionsStats() {
   try {
-    const res = await fetch("http://localhost:8000/api/promotions", { cache: "no-store" })
-    const promotions = res.ok ? await res.json() : []
+    const res = await fetch("http://localhost:8000/api/promotions/stats", { cache: "no-store" })
+    const data = res.ok ? await res.json() : null
 
-    return {
-      totalPromotions: promotions.length,
-      activePromotions: promotions.filter((p: any) => p.actif).length,
-      avgDiscount: 15.5, // Mock value
+    if (!data) {
+      return {
+        total_promotions: 0,
+        promotions_actives: 0,
+        reduction_moyenne: 0,
+      }
     }
+
+    const total_promotions = Number(data.total_promotions) || 0
+    const promotions_actives = Number(data.promotions_actives) || 0
+    const reduction_moyenne = Number(data.reduction_moyenne) || 0
+
+    return { total_promotions, promotions_actives, reduction_moyenne }
   } catch (error) {
     return {
-      totalPromotions: 0,
-      activePromotions: 0,
-      avgDiscount: 0,
+      total_promotions: 0,
+      promotions_actives: 0,
+      reduction_moyenne: 0,
     }
   }
 }
@@ -31,7 +39,7 @@ export async function PromotionsStats() {
           <Tag className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.totalPromotions}</div>
+          <div className="text-2xl font-bold">{stats.total_promotions}</div>
           <p className="text-xs text-muted-foreground">Toutes les promotions</p>
         </CardContent>
       </Card>
@@ -42,7 +50,7 @@ export async function PromotionsStats() {
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.activePromotions}</div>
+          <div className="text-2xl font-bold">{stats.promotions_actives}</div>
           <p className="text-xs text-muted-foreground">En cours</p>
         </CardContent>
       </Card>
@@ -53,7 +61,7 @@ export async function PromotionsStats() {
           <Percent className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.avgDiscount}%</div>
+          <div className="text-2xl font-bold">{stats.reduction_moyenne.toFixed(2)}%</div>
           <p className="text-xs text-muted-foreground">Moyenne des réductions</p>
         </CardContent>
       </Card>

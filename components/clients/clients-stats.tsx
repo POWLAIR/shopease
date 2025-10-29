@@ -3,20 +3,25 @@ import { Users, MapPin, TrendingUp } from "lucide-react"
 
 async function getClientsStats() {
   try {
-    const [clientsRes, addressesRes] = await Promise.all([
-      fetch("http://localhost:8000/api/clients", { cache: "no-store" }),
-      fetch("http://localhost:8000/api/clients", { cache: "no-store" }),
-    ])
+    const res = await fetch("http://localhost:8000/api/clients/stats", { cache: "no-store" })
+    const data = res.ok ? await res.json() : null
 
-    const clients = clientsRes.ok ? await clientsRes.json() : []
+    if (!data) {
+      return {
+        totalClients: 0,
+        avgAddresses: 0,
+        newThisMonth: 0,
+      }
+    }
 
-    // Calculate addresses per client (would need to fetch all addresses)
-    const avgAddresses = 1.5 // Mock value
+    const totalClients = Number(data.total_clients) || 0
+    const avgAddresses = Number(data.nombre_moyen_adresses) || 0
+    const newThisMonth = Number(data.nouveaux_ce_mois) || 0
 
     return {
-      totalClients: clients.length,
+      totalClients,
       avgAddresses,
-      newThisMonth: Math.floor(clients.length * 0.1),
+      newThisMonth,
     }
   } catch (error) {
     return {
